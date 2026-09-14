@@ -1,0 +1,17 @@
+{
+  "$schema": "./template.schema.json",
+  "schemaVersion": 1,
+  "defaultKind": "public",
+  "profiles": {
+    "public": { "auth": false, "bff": false, "query": false, "forms": false, "backoffice": false },
+    "app": { "auth": true, "bff": true, "query": false, "forms": false, "backoffice": false },
+    "backoffice": { "auth": true, "bff": true, "query": true, "forms": true, "backoffice": true }
+  },
+  "modules": {
+    "auth": { "paths": ["src/server/auth", "src/server/session", "src/app/auth", "src/app/(protected)", "src/components/auth"], "dependencies": ["openid-client", "jose"] },
+    "bff": { "paths": ["src/server/api", "src/app/api/session"], "dependencies": [] },
+    "query": { "paths": ["src/lib/query", "src/providers/query-provider.tsx"], "dependencies": ["@tanstack/react-query"], "devDependencies": ["@tanstack/eslint-plugin-query"] },
+    "forms": { "paths": ["src/components/forms", "src/lib/validation/example.ts"], "dependencies": ["react-hook-form", "@hookform/resolvers"] },
+    "backoffice": { "paths": ["src/components/backoffice", "src/config/navigation.ts", "src/app/(protected)/backoffice"], "dependencies": [] }
+  }
+}

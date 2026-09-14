@@ -1,0 +1,44 @@
+name: CI
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  quality:
+    name: quality (${{ matrix.kind }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        kind: [public, app, backoffice]
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      APP_KIND: ${{ matrix.kind }}
+      APP_URL: https://localhost:3440
+      OIDC_ISSUER: ${{ matrix.kind != 'public' && 'https://identity.test/api/auth' || '' }}
+      OIDC_CLIENT_ID: ${{ matrix.kind != 'public' && 'build-client' || '' }}
+      OIDC_CLIENT_SECRET: ${{ matrix.kind != 'public' && 'ginga-build-secret-canary-24f6c4f0' || '' }}
+      OIDC_AUDIENCE: ${{ matrix.kind != 'public' && 'https://api.test' || '' }}
+      SESSION_SINGLE_PROCESS: ${{ matrix.kind != 'public' && 'true' || '' }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run security:check
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e

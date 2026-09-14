@@ -1,0 +1,38 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      framework:
+        applies-to: version-updates
+        patterns: [next, react, react-dom, "@types/react*", "@next/*"]
+        update-types: [minor, patch]
+      oidc:
+        applies-to: version-updates
+        patterns: [openid-client, jose]
+        update-types: [minor, patch]
+      compatible:
+        applies-to: version-updates
+        patterns: ["*"]
+        exclude-patterns: [next, react, react-dom, "@types/react*", "@next/*", openid-client, jose]
+        update-types: [minor, patch]
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+    # Major versions remain individual PRs and require manual review. No auto-merge.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+        update-types: [minor, patch]
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly

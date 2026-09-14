@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schemaVersion", "defaultKind", "profiles", "modules"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "defaultKind": { "enum": ["public", "app", "backoffice"] },
+    "profiles": { "type": "object", "required": ["public", "app", "backoffice"], "additionalProperties": { "$ref": "#/$defs/capabilities" } },
+    "modules": {
+      "type": "object", "additionalProperties": {
+        "type": "object", "required": ["paths", "dependencies"], "additionalProperties": false,
+        "properties": {
+          "paths": { "type": "array", "items": { "type": "string" } },
+          "dependencies": { "type": "array", "items": { "type": "string" } },
+          "devDependencies": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": { "capabilities": {
+    "type": "object", "required": ["auth", "bff", "query", "forms", "backoffice"], "additionalProperties": false,
+    "properties": { "auth": { "type": "boolean" }, "bff": { "type": "boolean" }, "query": { "type": "boolean" }, "forms": { "type": "boolean" }, "backoffice": { "type": "boolean" } }
+  } }
+}

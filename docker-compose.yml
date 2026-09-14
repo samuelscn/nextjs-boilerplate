@@ -1,0 +1,28 @@
+services:
+  web:
+    build: .
+    environment:
+      NODE_ENV: production
+      APP_KIND: ${APP_KIND:-public}
+      APP_URL: ${APP_URL:?Set the external HTTPS origin}
+      APP_NAME: ${APP_NAME:-Ginga Application}
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+      OIDC_CLIENT_TYPE: ${OIDC_CLIENT_TYPE:-confidential}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-}
+      OIDC_MAX_AGE: ${OIDC_MAX_AGE:-}
+      SESSION_SINGLE_PROCESS: ${SESSION_SINGLE_PROCESS:-false}
+      SESSION_TTL_SECONDS: ${SESSION_TTL_SECONDS:-28800}
+      PRODUCT_API_URL: ${PRODUCT_API_URL:-}
+    ports:
+      - "127.0.0.1:3000:3000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    init: true
+    restart: unless-stopped

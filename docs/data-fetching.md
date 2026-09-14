@@ -1,0 +1,50 @@
+# Dados e mutações
+
+| Necessidade | Padrão |
+| --- | --- |
+| Dados necessários no primeiro render | Server Component + função server-only |
+| Leitura autenticada na Product API | productRequest no servidor, no-store |
+| Cache/refetch/invalidation interativos no browser | TanStack Query + rota BFF nomeada |
+| Form específico com navegação/revalidação integrada | Server Action validada e autenticada |
+| Contrato JSON, múltiplos clientes ou Query | Route Handler/BFF |
+
+Server Components chamam a função de servidor diretamente, sem fazer uma chamada HTTP ao próprio /api. O browser usa `bffRequest` com caminhos /api locais e credentials same-origin. Nunca recebe a base URL privada nem o Bearer token.
+
+## HTTP mínimo
+
+`productRequest(path, schema, options)` recebe caminho definido no código do servidor. A base vem exclusivamente de PRODUCT_API_URL. Não há rota catch-all. A construção conserva host e prefixo da base; rejeita URLs externas, ponto, percent-encoding, barras invertidas e caminhos ambíguos. Query strings usam URLSearchParams e não alteram o destino.
+
+Headers de entrada, cookies do browser, Set-Cookie e Location da API não são repassados. Apenas Authorization server-side, Accept, content-type quando necessário e requestId são enviados. Fetch usa no-store, redirect:error e timeout de 10 segundos. Erros internos não são retornados ao browser. Não repetir automaticamente operações mutáveis.
+
+Respostas JSON são limitadas a 1 MiB e validadas por Zod. Use z.object com somente os campos públicos necessários; nunca z.any/z.unknown/passthrough para projetar resposta de produto ao browser. Campos extras são removidos. Uma proteção adicional rejeita reflexão do access token e nomes de campos de credenciais.
+
+## Montar uma operação de produto
+
+Não há endpoint fictício registrado no boilerplate. Ao existir um contrato real, crie uma rota nomeada em src/app/api, seu schema de entrada/saída e componha `createBffHandler` com `productRequest`. O helper valida método, capability, Origin em mutações, sessão, body de até 16 KiB e saída. A Product API deve validar/autorizá-los novamente.
+
+```ts
+// Estrutura de integração; schemas e operationPath vêm do contrato real do produto.
+export const POST = createBffHandler({
+  method: "POST",
+  input: inputSchema,
+  output: outputSchema,
+  execute: (input, requestId) =>
+    productRequest(operationPath, outputSchema, {
+      method: "POST", body: input, requestId,
+    }),
+});
+```
+
+Server Actions devem tratar FormData como unknown, validar schema, chamar requireSession e então productRequest. Cookies/Origin padrão do Next não dispensam validação/autorização. Use revalidatePath somente para conteúdo com uma política de cache revisada; não habilite cache global para dados privados.
+
+## TanStack Query
+
+A factory cria um QueryClient novo. O provider mantém uma instância por montagem e está apenas no layout backoffice. App/public podem adicionar esse provider ao menor subtree interativo quando necessário. Não há singleton SSR, persistência em storage, devtools ou refetch global agressivo.
+
+Defaults: staleTime 30s, gcTime 5min, sem refetch no foco, uma tentativa adicional para falhas transitórias de queries; nenhum retry para status 4xx ou mutations. Adicione signal do queryFn ao bffRequest para cancelamento.
+
+Uma mutation bem-sucedida invalida a query específica com `queryClient.invalidateQueries({ queryKey })`. Query keys devem separar usuário/contexto quando houver troca de identidade sem reload. O logout padrão navega o documento inteiro. Se mudar esse fluxo para SPA, cancele queries, limpe o cache e renove a árvore antes de trocar usuário.
+
+Para hydration, use createQueryClient por request + prefetchQuery/dehydrate/HydrationBoundary e passe só DTOs permitidos. Não desidrate objetos de sessão internos. Não carregue a mesma informação por RSC e Query sem definir a responsabilidade de atualização.
+
+401 gera pedido de novo login; 403 mostra acesso negado e nunca infere RBAC no browser. Erros de rede/API têm mensagem genérica e requestId para correlação.

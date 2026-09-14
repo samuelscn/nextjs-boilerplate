@@ -1,0 +1,93 @@
+# Ginga Next.js Boilerplate
+
+Fundação oficial da Ginga Software para landing pages, aplicações autenticadas e backoffices. Um Core e capabilities opcionais, sem domínio de produto e preparado para uma futura Ginga CLI. A CLI não faz parte deste projeto.
+
+## Começar
+
+Requisitos: Node 24.21.0 LTS e npm 11. Para E2E, Chromium do Playwright e OpenSSL; Docker é opcional.
+
+```sh
+nvm install
+nvm use
+npm ci
+cp .env.example .env.local
+npm run dev
+```
+
+Abra http://localhost:3000. O perfil padrão `public` funciona sem Identity ou Product API. Ginga UI 0.1.4 é consumido do tarball oficial local autorizado em vendor; não depende de outro checkout nem de credenciais privadas para instalar. [Proveniência e migração para registry](vendor/README.md).
+
+## Perfis
+
+| APP_KIND | Rotas e capabilities |
+| --- | --- |
+| public | Página pública, SEO, UI e Core seguro; auth/BFF desabilitados |
+| app | /app protegida, OIDC, sessão server-side, BFF |
+| backoffice | /backoffice protegida, shell responsivo, navigation e Query Provider |
+
+Ajuste APP_KIND em .env.local. Auth/backoffice exigem registro de application no Ginga Identity, issuer/client/audience e secret para cliente confidencial. Config é validada por Zod conforme capability. Em produção, HTTPS e topologia de processo único explicitamente configurada são obrigatórios. [Criar um projeto](docs/creating-a-project.md) · [Contrato para a futura CLI](docs/capabilities.md).
+
+## Stack e arquitetura
+
+Next 16.3.5, React 19.3.0, TypeScript strict, Ginga UI 0.1.4, Zod, RHF e TanStack Query. Versões críticas exatas, npm lockfile e política stable/supported/patched/tested. [Decisões e versões](docs/dependencies.md).
+
+Browser → Next → Product API. Server Components por padrão; browser usa BFF de mesma origem. Ginga Identity autentica por redirect OIDC Authorization Code + PKCE; não recebe senha no Next. Cookie opaco HttpOnly identifica sessão local; access/refresh ficam somente em memória server-side. Product API decide autorização. [Arquitetura](docs/architecture.md) · [Autenticação](docs/authentication.md).
+
+`src/app` contém rotas; `src/config` contém env/capabilities; `src/components` contém composição; `src/lib` contém HTTP/validation/query; `src/server` contém auth/session/BFF; `src/providers` contém providers clientes locais.
+
+## Design System
+
+```tsx
+import { Button, Input, Card } from "@ginga/ui";
+```
+
+O import resolve o pacote real @ginga-software/ui 0.1.4. CSS do DS é importado uma vez por globals.css. Tailwind 4.3.3 já vem compilado no pacote; não precisa de shadcn, tailwind.config ou PostCSS no consumidor.
+
+Branding: sobrescreva tokens em src/app/globals.css, depois do import do DS. Pares suportados: primary/primary-foreground, accent/accent-foreground, background/foreground, card, popover, secondary, muted, destructive, border, input, ring; também radius, font-sans/font-mono, chart-1…5 e sidebar-*. Verifique contraste, foco e light/dark. Sem theme engine adicional ou fontes externas.
+
+## Dados e formulários
+
+Prefira fetch server-side para o primeiro render. Query apenas para estado assíncrono interativo, caching/invalidation/refetch no cliente; provider só no backoffice por padrão. Nenhum cache Query compartilhado entre requests. [Data fetching e BFF](docs/data-fetching.md).
+
+RHF + Zod + fields do Ginga UI; exemplo neutro completo/testado em src/components/forms/example-form.tsx. Ele não cria feature ou endpoint fictício. Inputs são revalidados no servidor/API. [Forms](docs/forms.md).
+
+## Comandos
+
+| Comando | Uso |
+| --- | --- |
+| npm run dev | Desenvolvimento |
+| npm run build | Build standalone + assets |
+| npm start | Executar produção standalone |
+| npm run lint | ESLint |
+| npm run typecheck | Tipos de rotas + TypeScript strict |
+| npm test / npm run test:watch | Unitários, componentes e integração OIDC |
+| npm run test:e2e | Três perfis em servidores de produção HTTPS locais |
+| npm run test:modes | Build separado dos três perfis + secret canary check |
+| npm run check | Lint, tipos, testes e build |
+| npm run security:check | Invariantes, bundle leak check e audit runtime |
+
+Antes de E2E: `npx playwright install --with-deps chromium` e `APP_URL=https://localhost npm run build`. Os testes usam OpenSSL para certificados locais temporários; não desativam validação TLS do app.
+
+Para build/start de smoke:
+
+```sh
+APP_URL=https://localhost npm run build
+APP_URL=https://localhost npm start
+```
+
+O listener é HTTP; HTTPS termina no ingress. Para produção real, use APP_URL correspondente à origem externa e configure env no runtime. Não reutilize configuração HTTP de desenvolvimento em produção. `GET /api/health` é liveness mínimo.
+
+Docker: `APP_URL=https://localhost docker compose up --build -d`. Imagem multi-stage/non-root; Compose read-only/cap_drop, sem .env no contexto. Sessão memory requer apenas um processo/réplica. [Deployment e configuração](docs/creating-a-project.md).
+
+## Qualidade, CI e segurança
+
+CI verifica public/app/backoffice com npm ci, lint, typecheck, testes, build, segurança e E2E. Security executa audit completo/runtime; CodeQL e Dependency Review estão configurados quando disponíveis. Dependabot semanal npm/Actions/Docker, sem auto-merge de majors. Branch protection, secret scanning e push protection precisam ser habilitados pelos mantenedores; não foram ativados remotamente.
+
+CSP com nonce, HSTS de produção, cookies seguros, CSRF por Origin, URLs restritas, DTOs validados, no-store e logs allowlisted. Sem RBAC/tenant engine, analytics ou state manager global. [Segurança e threat boundaries](docs/security.md) · [Vulnerabilidades](SECURITY.md).
+
+CSP estrita requer renderização dinâmica, inclusive em public; static export não está habilitado. Session store atual não suporta serverless/réplicas e perde sessões ao reiniciar. Testes isolados não substituem homologação com Identity real. [Limites e contrato de auth](docs/authentication.md).
+
+## Documentação
+
+[Auditoria](docs/audit.md) · [Arquitetura](docs/architecture.md) · [Autenticação](docs/authentication.md) · [Dados](docs/data-fetching.md) · [Forms](docs/forms.md) · [Segurança](docs/security.md) · [Capabilities](docs/capabilities.md) · [Criar projeto](docs/creating-a-project.md) · [Dependências](docs/dependencies.md).
+
+O protocolo para agentes está em AGENTS.md. A futura CLI deverá selecionar/podar capabilities, ajustar composição/imports/dependências, configurar branding/env, coordenar registro Identity quando autorizado e validar o projeto resultante.

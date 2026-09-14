@@ -1,0 +1,35 @@
+@import "@ginga/ui/styles.css";
+
+/* Override semantic tokens here; component internals stay in the Design System.
+   Always change foreground/background pairs together and check contrast. */
+:root { --font-sans: ui-sans-serif, system-ui, sans-serif; }
+
+body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-sans); }
+h1 { font-size: 2rem; font-weight: 650; line-height: 1.2; }
+h2 { font-size: 1.25rem; font-weight: 600; }
+a { text-underline-offset: .2em; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
+.page { width: min(100% - 2.5rem, 64rem); margin: 4rem auto; }
+.stack { display: grid; gap: 1rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+.page-header { display: grid; gap: .75rem; margin-bottom: 2rem; }
+.muted { color: var(--muted-foreground); }
+.skip-link { position: fixed; top: -10rem; left: 1rem; z-index: 100; padding: 1rem; background: var(--background); color: var(--foreground); }
+.skip-link:focus { top: 1rem; }
+.loading-block { height: 5rem; width: 100%; }
+.app-shell { display: grid; grid-template-columns: 15rem minmax(0, 1fr); min-height: 100dvh; }
+.sidebar { padding: 1.5rem; background: var(--sidebar); color: var(--sidebar-foreground); border-right: 1px solid var(--border); }
+.app-name { font-weight: 650; margin-bottom: 1rem; }
+.navigation { list-style: none; padding: 1rem 0; display: grid; gap: .5rem; }
+.navigation a { display: block; padding: .75rem; border-radius: var(--radius); }
+.navigation a[aria-current="page"] { background: var(--sidebar-accent); color: var(--sidebar-accent-foreground); }
+.shell-content { min-width: 0; }
+.shell-header { padding: 1rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.shell-main { padding: 2rem; }
+@media (max-width: 48rem) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { border-right: 0; border-bottom: 1px solid var(--border); padding: 1rem; }
+  .shell-main, .shell-header { padding: 1rem; }
+  .navigation { padding-bottom: 0; }
+}
