@@ -1,0 +1,8 @@
+{
+  "IS_EMAIL": "Enter a valid email address.",
+  "IS_NOT_EMPTY": "This field is required.",
+  "MIN_LENGTH": "The value is too short.",
+  "MAX_LENGTH": "The value is too long.",
+  "IS_UUID": "Enter a valid identifier.",
+  "INVALID_VALUE": "Review the value of this field."
+}

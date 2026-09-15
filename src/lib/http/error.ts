@@ -1,11 +1,10 @@
-export class HttpError extends Error {
-  constructor(public readonly status: number, public readonly code: string, public readonly requestId?: string) {
-    super(code);
-    this.name = "HttpError";
+import { ApiError, statusCode } from "./api-error";
+
+// Small adapter for internal HTTP failures. All consumers receive ApiError.
+export class HttpError extends ApiError {
+  constructor(status: number, code: string, requestId?: string) {
+    const stableCode = /^[A-Z][A-Z0-9_]*$/u.test(code) ? code : statusCode(status);
+    super({ statusCode: status, code: stableCode, message: stableCode,
+      timestamp: new Date().toISOString(), ...(requestId ? { requestId } : {}) });
   }
-}
-export function errorMessage(error: unknown): string {
-  if (error instanceof HttpError && error.status === 401) return "Sua sessão expirou. Entre novamente.";
-  if (error instanceof HttpError && error.status === 403) return "Acesso não permitido.";
-  return "Não foi possível concluir a operação. Tente novamente.";
 }

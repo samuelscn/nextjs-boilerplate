@@ -7,7 +7,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: "list",
   use: {
-    ...devices["Desktop Chrome"], ignoreHTTPSErrors: true,
+    ...devices["Desktop Chrome"], ignoreHTTPSErrors: true, locale: "pt-BR",
     trace: "off", screenshot: "off", video: "off",
   },
   projects: [

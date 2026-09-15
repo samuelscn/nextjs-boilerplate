@@ -1,11 +1,26 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
-  "required": ["schemaVersion", "defaultKind", "profiles", "modules"],
+  "required": ["schemaVersion", "defaultKind", "i18n", "profiles", "modules"],
   "properties": {
     "$schema": { "type": "string" },
     "schemaVersion": { "const": 1 },
     "defaultKind": { "enum": ["public", "app", "backoffice"] },
+    "i18n": {
+      "type": "object", "required": ["required", "defaultLocale", "urlStrategy"], "additionalProperties": false,
+      "properties": {
+        "required": { "const": true },
+        "defaultLocale": { "enum": ["pt-BR", "en"] },
+        "urlStrategy": {
+          "type": "object", "required": ["public", "app", "backoffice"], "additionalProperties": false,
+          "properties": {
+            "public": { "enum": ["public-prefix", "cookie"] },
+            "app": { "const": "cookie" },
+            "backoffice": { "const": "cookie" }
+          }
+        }
+      }
+    },
     "profiles": { "type": "object", "required": ["public", "app", "backoffice"], "additionalProperties": { "$ref": "#/$defs/capabilities" } },
     "modules": {
       "type": "object", "additionalProperties": {

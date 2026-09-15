@@ -1,15 +1,18 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { HttpError } from "@/lib/http/error";
+import { ApiError, errorDto } from "@/lib/http/api-error";
+import { correlationId, validCorrelationId } from "@/lib/http/correlation";
 
 export function requestId(request: Request): string {
-  const value = request.headers.get("x-request-id");
-  return value && /^[a-f0-9-]{36}$/iu.test(value) ? value : randomUUID();
+  return correlationId(request.headers) ?? randomUUID();
 }
 export function privateJson(data: unknown, status = 200, id: string = randomUUID()) {
-  return Response.json(data, { status, headers: { "Cache-Control": "private, no-store", "x-request-id": id } });
+  const safeId = validCorrelationId(id) ?? randomUUID();
+  return Response.json(data, { status, headers: { "Cache-Control": "private, no-store", "x-correlation-id": safeId, "x-request-id": safeId } });
 }
 export function errorResponse(error: unknown, id: string) {
-  const status = error instanceof HttpError ? error.status : 500;
-  return privateJson({ error: status === 401 ? "unauthorized" : status === 403 ? "forbidden" : status === 404 ? "not_found" : "request_failed", requestId: id }, status, id);
+  const dto = errorDto(error, id);
+  const response = privateJson(dto, dto.statusCode, dto.requestId ?? id);
+  if (error instanceof ApiError && error.retryAfterMs !== undefined) response.headers.set("Retry-After", String(Math.ceil(error.retryAfterMs / 1000)));
+  return response;
 }

@@ -26,7 +26,7 @@ test("production profile, CSP, cookie and unauthenticated boundaries", async ({ 
     const nonce = response!.headers()["content-security-policy"]!.match(/'nonce-([^']+)'/u)![1];
     expect(html).toContain('nonce="' + nonce + '"');
     const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
-    expect(new URL(canonical!).href).toBe(baseURL + "/");
+    expect(new URL(canonical!).href).toBe(baseURL + "/pt-BR");
     expect((await request.get("/auth/login", { maxRedirects: 0 })).status()).toBe(404);
     expect((await request.get("/api/session")).status()).toBe(404);
     expect((await request.get("/app", { maxRedirects: 0 })).status()).toBe(404);
@@ -67,4 +67,38 @@ test("neutral error UI and mobile viewport", async ({ page }, info) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.goto("/missing-page");
   await expect(page.getByRole("heading", { name: "Página não encontrada" })).toBeVisible();
+});
+
+test("locale URLs, preference cookie, metadata and localized errors", async ({ page, request, baseURL }, info) => {
+  const kind = info.project.name;
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  page.on("console", message => {
+    if (message.type() === "error" && /Content Security Policy|hydration/iu.test(message.text())) errors.push(message.text());
+  });
+  await page.goto(kind === "public" ? "/pt-BR" : "/auth/error?reason=unavailable");
+  await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
+  await page.getByLabel("Idioma").selectOption("en");
+  await page.getByRole("button", { name: "Aplicar idioma" }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  const cookie = (await page.context().cookies()).find(value => value.name === "ginga_locale");
+  expect(cookie).toMatchObject({ value: "en", secure: true, httpOnly: true, sameSite: "Lax" });
+  if (kind === "public") {
+    await expect(page).toHaveURL(baseURL + "/en");
+    await expect(page.getByText("Ready to get started")).toBeVisible();
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", baseURL + "/en");
+    await expect(page.locator('link[hreflang="pt-BR"]')).toHaveAttribute("href", baseURL + "/pt-BR");
+    await page.goto("/pt-BR");
+    await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR"); // URL wins over cookie.
+    await page.goto("/en/missing");
+  } else {
+    await page.goto("/auth/error?reason=unavailable");
+    await expect(page.getByRole("heading", { name: "Identity unavailable" })).toBeVisible();
+    const response = await request.get("/api/session", { headers: { "x-correlation-id": "req_E2E" } });
+    expect(await response.json()).toMatchObject({ statusCode: 401, code: "AUTHENTICATION_REQUIRED", requestId: "req_E2E" });
+    expect(response.headers()["x-correlation-id"]).toBe("req_E2E");
+    await page.goto("/missing");
+  }
+  await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
+  expect(errors).toEqual([]);
 });

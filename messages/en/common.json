@@ -1,0 +1,23 @@
+{
+  "actions": {
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "home": "Go to home",
+    "signIn": "Sign in again",
+    "signOut": "Sign out",
+    "applyLanguage": "Apply language"
+  },
+  "skip": "Skip to content",
+  "language": "Language",
+  "navigation": "Main navigation",
+  "loading": "Loading",
+  "loadingText": "Loading…",
+  "emptyTitle": "No content",
+  "emptyDescription": "Content will appear here when available.",
+  "errorTitle": "Something went wrong",
+  "notFoundTitle": "Page not found",
+  "reference": "Reference code: {id}",
+  "metadataDescription": "Application built with the Ginga Software Next.js foundation."
+}

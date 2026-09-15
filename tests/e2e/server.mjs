@@ -64,7 +64,7 @@ for (const [index, kind] of ["public", "app", "backoffice"].entries()) {
   const internal = 3400 + index;
   const external = 3440 + index;
   const env = { ...process.env };
-  for (const key of Object.keys(env)) if (/^(OIDC_|SESSION_|PRODUCT_API_|APP_)/u.test(key)) delete env[key];
+  for (const key of Object.keys(env)) if (/^(OIDC_|SESSION_|PRODUCT_API_|APP_|I18N_)/u.test(key)) delete env[key];
   Object.assign(env, { NODE_ENV: "production", APP_KIND: kind, APP_URL: "https://localhost:" + external,
     APP_NAME: "Ginga Application", NEXT_TELEMETRY_DISABLED: "1", NODE_EXTRA_CA_CERTS: certFile });
   if (kind !== "public") Object.assign(env, {

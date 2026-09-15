@@ -1,7 +1,11 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render as renderUI, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import { catalogs } from "@/i18n/catalogs";
+import type { Locale } from "@/i18n/config";
+import { ApiError, NetworkError } from "@/lib/http/api-error";
 import userEvent from "@testing-library/user-event";
 import { ExampleForm } from "@/components/forms/example-form";
 import { ErrorState, EmptyState, LoadingState } from "@/components/feedback";
@@ -13,17 +17,50 @@ import type { ExampleResult } from "@/lib/validation/example";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/backoffice" }));
 afterEach(cleanup);
+const render = (ui: React.ReactNode, locale: Locale = "pt-BR") => renderUI(<NextIntlClientProvider locale={locale} messages={catalogs[locale]} timeZone="UTC">{ui}</NextIntlClientProvider>);
 describe("own components and integration with Ginga UI", () => {
+  it("validates and renders server errors in English", async () => {
+    render(<ExampleForm submit={async () => ({ ok: false, error: {
+      statusCode: 400, code: "VALIDATION_ERROR", message: "unsafe message", timestamp: new Date().toISOString(),
+      details: [{ field: "label", code: "MAX_LENGTH", message: "unsafe field" }],
+    } })} />, "en");
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+    expect(await screen.findByText("This field is required.")).toBeVisible();
+    await userEvent.type(screen.getByLabelText("Text"), "Example");
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+    expect(await screen.findByText("The value is too long.")).toBeVisible();
+    expect(screen.getByLabelText("Text")).toHaveFocus();
+    expect(screen.queryByText("unsafe field")).not.toBeInTheDocument();
+  });
+  it.each(["pt-BR", "en"] as const)("offers login only for 401, not 403 (%s)", locale => {
+    const failure = (statusCode: number, code: string) => new ApiError({
+      statusCode, code, message: "secret", requestId: "req_SUPPORT", timestamp: new Date().toISOString(),
+    });
+    const view = render(<ErrorState error={failure(403, "AUTHORIZATION_FORBIDDEN")} />, locale);
+    expect(screen.getByRole("alert")).toHaveTextContent(catalogs[locale].errors.AUTHORIZATION_FORBIDDEN);
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(screen.getByText(/req_SUPPORT/u)).toBeVisible();
+    view.unmount();
+    render(<ErrorState error={failure(401, "AUTHENTICATION_REQUIRED")} />, locale);
+    expect(screen.getByRole("link")).toHaveAttribute("href", "/auth/login");
+  });
+  it("renders a localized network fallback without technical error text", () => {
+    render(<ErrorState error={new NetworkError()} />, "en");
+    expect(screen.getByRole("alert")).toHaveTextContent(catalogs.en.errors.NETWORK_ERROR);
+  });
   it("validates, submits and handles server field errors accessibly", async () => {
     const user = userEvent.setup();
-    const submit = vi.fn(async (): Promise<ExampleResult> => ({ ok: false, fieldErrors: { label: "Texto indisponível." }, message: "Revise os campos." }));
+    const submit = vi.fn(async (): Promise<ExampleResult> => ({ ok: false, error: {
+      statusCode: 400, code: "VALIDATION_ERROR", message: "Do not render this message", timestamp: new Date().toISOString(),
+      details: [{ field: "label", code: "MAX_LENGTH", message: "Do not render field text" }],
+    } }));
     render(<ExampleForm submit={submit} />);
     await user.click(screen.getByRole("button", { name: "Salvar" }));
-    expect(await screen.findByText("Informe um texto.")).toBeVisible();
+    expect(await screen.findByText("Preencha este campo.")).toBeVisible();
     expect(submit).not.toHaveBeenCalled();
     await user.type(screen.getByLabelText("Texto"), "Exemplo");
     await user.click(screen.getByRole("button", { name: "Salvar" }));
-    expect(await screen.findByText("Texto indisponível.")).toBeVisible();
+    expect(await screen.findByText("O valor informado é muito longo.")).toBeVisible();
     expect(screen.getByLabelText("Texto")).toHaveFocus();
     expect(submit).toHaveBeenCalledWith({ label: "Exemplo" });
   });

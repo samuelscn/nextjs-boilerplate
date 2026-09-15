@@ -19,6 +19,9 @@ export default defineConfig([
       "no-restricted-syntax": ["error", {
         selector: "MemberExpression[object.name='process'][property.name='env']",
         message: "Use the validated server-only config boundary.",
+      }, {
+        selector: "BinaryExpression[left.property.name='message'], BinaryExpression[right.property.name='message'], SwitchStatement[discriminant.property.name='message']",
+        message: "Error.message is not a contract. Use code/statusCode.",
       }],
     },
   },

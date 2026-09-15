@@ -36,6 +36,7 @@ sequenceDiagram
 - `src/lib`: validação compartilhável, HTTP do browser, erros e factory Query.
 - `src/server`: OIDC, sessões, HTTP autenticado e proteção CSRF. Todos os módulos marcados `server-only`.
 - `src/providers`: providers clientes locais à capability.
+- `src/i18n` e `messages/<locale>/<namespace>.json`: Core obrigatório com next-intl, resolução validada, traduções e normalização visual de erros.
 - `tests`: unitários, componentes, integração OIDC por boundary e E2E de produção.
 
 ## Decisões
@@ -51,5 +52,9 @@ Sessões em memória servem a um único processo Node. São perdidas em restart,
 Não há client-side RBAC, tenant engine, analytics, state manager global ou domínio de exemplo. Password, MFA e políticas de autenticação forte pertencem ao Identity. A organização de `server/auth` permite futura extração de `@ginga/auth-next`, após uso real; nenhum pacote de auth foi criado agora.
 
 ## Fronteiras de confiança
+
+Internacionalização é Core, não feature futura. Public usa URLs por locale; app/backoffice usam preferência validada sem alterar callback OIDC. IntlProvider não transforma children Server Components em Client Components. Metadata, forms e estados de erro compartilham os catálogos. Ver [internacionalização](internationalization.md).
+
+Product API → schema ApiErrorResponse → ApiError → tradução por code. x-correlation-id acompanha Browser → BFF → API; erros inválidos/inesperados são normalizados, nunca renderizados como texto técnico. Identity tem adapter próprio. Ver [contrato de erros](error-handling.md).
 
 Browser é não confiável; UI não autoriza. Product API valida o JWT novamente e decide acesso ao domínio. Identity autentica e emite tokens. Configuração, DNS, TLS/ingress e dependências são administrados por operadores confiáveis. Nenhum serviço compartilha o banco ou os cookies do Identity.

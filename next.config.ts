@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { fileURLToPath } from "node:url";
+import createNextIntlPlugin from "next-intl/plugin";
 
 const config: NextConfig = {
   output: "standalone",
@@ -9,4 +10,4 @@ const config: NextConfig = {
   images: { remotePatterns: [], dangerouslyAllowSVG: false },
   logging: { incomingRequests: false },
 };
-export default config;
+export default createNextIntlPlugin("./src/i18n/request.ts")(config);

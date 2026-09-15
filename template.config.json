@@ -2,6 +2,11 @@
   "$schema": "./template.schema.json",
   "schemaVersion": 1,
   "defaultKind": "public",
+  "i18n": {
+    "required": true,
+    "defaultLocale": "pt-BR",
+    "urlStrategy": { "public": "public-prefix", "app": "cookie", "backoffice": "cookie" }
+  },
   "profiles": {
     "public": { "auth": false, "bff": false, "query": false, "forms": false, "backoffice": false },
     "app": { "auth": true, "bff": true, "query": false, "forms": false, "backoffice": false },

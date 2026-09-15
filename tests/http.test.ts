@@ -13,8 +13,8 @@ describe("HTTP and BFF security", () => {
   it("validates JSON and strips fields outside the public schema", async () => {
     expect(await readJson(Response.json({ label: "ok", refresh_token: "never-serialize" }), schema)).toEqual({ label: "ok" });
     await expect(readJson(Response.json({ other: 1 }), schema)).rejects.toMatchObject({ status: 502 });
-    await expect(readJson(new Response("<html>upstream secret", { status: 500 }), schema)).rejects.toMatchObject({ status: 500, message: "request_failed" });
-    await expect(readJson(Response.json({ label: "too long" }), schema, 2)).rejects.toMatchObject({ code: "response_too_large" });
+    await expect(readJson(new Response("<html>upstream secret", { status: 500 }), schema)).rejects.toMatchObject({ status: 500, code: "INTERNAL_SERVER_ERROR" });
+    await expect(readJson(Response.json({ label: "too long" }), schema, 2)).rejects.toMatchObject({ code: "INTERNAL_SERVER_ERROR" });
   });
   it("sets server-only Bearer, no-store and redirect:error; does not forward cookies", async () => {
     const transport = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ label: "ok", access_token: "secret", refresh_token: "secret" }, { headers: { "Set-Cookie": "upstream=secret" } }));
@@ -35,7 +35,7 @@ describe("HTTP and BFF security", () => {
     const api = createProductClient("https://api.test", async () => "access-secret", transport);
     await expect(api("/status", schema, { requestId: "id" })).rejects.toMatchObject({ status: 502 });
     transport.mockRejectedValue(new Error("internal server details"));
-    await expect(api("/status", schema, { requestId: "id" })).rejects.toMatchObject({ message: "product_api_unavailable" });
+    await expect(api("/status", schema, { requestId: "id" })).rejects.toMatchObject({ kind: "network", code: "NETWORK_ERROR" });
   });
   it("invalidates session after an upstream 401", async () => {
     const invalidate = vi.fn();

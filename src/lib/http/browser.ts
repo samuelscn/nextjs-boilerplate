@@ -1,6 +1,7 @@
 import type { z } from "zod";
 import { HttpError } from "./error";
 import { readJson } from "./json";
+import { NetworkError } from "./api-error";
 
 export async function bffRequest<T>(path: string, schema: z.ZodType<T>, init: { method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"; body?: unknown; signal?: AbortSignal } = {}): Promise<T> {
   if (!/^\/api\/[a-zA-Z0-9/_-]+$/u.test(path) || path.includes("//")) throw new HttpError(400, "invalid_path");
@@ -16,6 +17,6 @@ export async function bffRequest<T>(path: string, schema: z.ZodType<T>, init: { 
       ...(init.body === undefined ? {} : { body: JSON.stringify(init.body) }),
       signal: init.signal ? AbortSignal.any([init.signal, controller]) : controller,
     });
-  } catch { throw new HttpError(503, "network_unavailable"); }
+  } catch { throw new NetworkError(); }
   return readJson(response, schema);
 }

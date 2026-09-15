@@ -7,6 +7,7 @@ describe("capability environment", () => {
   it("public needs no Identity runtime config and discards secrets", () => {
     expect(parseEnv({ OIDC_CLIENT_SECRET: "never-copy-this" })).toEqual({
       NODE_ENV: "development", APP_KIND: "public", APP_URL: "http://localhost:3000", APP_NAME: "Ginga Application",
+      I18N_DEFAULT_LOCALE: "pt-BR", I18N_URL_STRATEGY: "public-prefix",
     });
   });
   it.each(["app", "backoffice"])("requires auth settings for %s", APP_KIND => {

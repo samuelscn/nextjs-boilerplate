@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
 
 const base = { ...process.env, NEXT_TELEMETRY_DISABLED: "1" };
-for (const key of Object.keys(base)) if (/^(OIDC_|SESSION_|PRODUCT_API_|APP_)/u.test(key)) delete base[key];
+for (const key of Object.keys(base)) if (/^(OIDC_|SESSION_|PRODUCT_API_|APP_|I18N_)/u.test(key)) delete base[key];
 for (const kind of ["app", "backoffice", "public"]) {
   const env = { ...base, APP_KIND: kind, APP_URL: "https://localhost:3440" };
   if (kind !== "public") Object.assign(env, {

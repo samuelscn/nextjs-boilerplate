@@ -17,7 +17,7 @@ O backoffice exige autenticação, mesmo quando não há Product API. Nenhuma co
 - modules: arquivos/diretórios candidatos à poda e dependencies/devDependencies correspondentes.
 - $schema: validação editorial do formato. Paths são relativos ao root; nunca fora dele.
 
-O manifesto é inventário, não um programa de remoção automática: imports e composição precisam ser transformados conforme a seção seguinte. CI executa builds dos três perfis. A factory `capabilities(kind)` retorna os valores declarados.
+O manifesto é inventário, não um programa de remoção automática: imports e composição precisam ser transformados conforme a seção seguinte. CI executa builds dos três perfis. A factory `capabilities(kind)` retorna os valores declarados. i18n.required=true declara Core obrigatório; selecione i18n.defaultLocale e estratégia, mas preserve next-intl, src/i18n, messages, /api/locale e o provider de traduções em todos os perfis.
 
 ## Transformações que a futura CLI deverá fazer
 
@@ -36,4 +36,4 @@ App: manter auth/session/BFF, páginas auth e /app; remover backoffice, navigati
 
 Backoffice: manter auth/BFF/shell/query; remover página /app não usada, fixar defaultKind=backoffice, configurar navigation e páginas reais. Manter form de referência somente até criar formulários do produto. Não gerar features de domínio, RBAC ou tenants.
 
-Após poda, nenhum import pode apontar a módulo removido. A CLI deverá executar lint/typecheck/tests/build e smoke de produção, e revisar o lockfile. Não usar exclusão por string global que possa atingir paths fora do projeto. Redis/DB/analytics/i18n são capacidades futuras, não dependências implícitas.
+Após poda, nenhum import pode apontar a módulo removido. A CLI deverá executar lint/typecheck/tests/build e smoke de produção, e revisar o lockfile. Não usar exclusão por string global que possa atingir paths fora do projeto. Redis/DB/analytics são capacidades futuras; i18n já faz parte do Core. Ao podar auth/forms/backoffice, remova também namespaces/imports exclusivos e mantenha common/errors/validation/public conforme uso.

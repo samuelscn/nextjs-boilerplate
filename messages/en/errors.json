@@ -1,0 +1,13 @@
+{
+  "VALIDATION_ERROR": "Review the provided fields.",
+  "AUTHENTICATION_REQUIRED": "Authentication is required.",
+  "AUTHORIZATION_FORBIDDEN": "You do not have permission to perform this action.",
+  "RESOURCE_NOT_FOUND": "The requested resource is not available.",
+  "RESOURCE_CONFLICT": "The operation conflicts with the current state. Refresh and try again.",
+  "DOMAIN_RULE_VIOLATION": "This operation cannot be completed under the current conditions.",
+  "RATE_LIMIT_EXCEEDED": "Too many requests. Please wait before trying again.",
+  "INTERNAL_SERVER_ERROR": "Something went wrong. Please try again.",
+  "NETWORK_ERROR": "Unable to connect. Check your connection and try again.",
+  "IDENTITY_UNAVAILABLE": "The authentication service is unavailable. Please try again shortly.",
+  "IDENTITY_FLOW_INVALID": "The sign-in flow expired or could not be verified. Start a new sign-in."
+}

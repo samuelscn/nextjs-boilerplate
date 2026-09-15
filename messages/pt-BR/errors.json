@@ -1,0 +1,13 @@
+{
+  "VALIDATION_ERROR": "Revise os campos informados.",
+  "AUTHENTICATION_REQUIRED": "É necessário entrar para continuar.",
+  "AUTHORIZATION_FORBIDDEN": "Você não possui permissão para realizar esta ação.",
+  "RESOURCE_NOT_FOUND": "O recurso solicitado não está disponível.",
+  "RESOURCE_CONFLICT": "A operação entrou em conflito com o estado atual. Atualize e tente novamente.",
+  "DOMAIN_RULE_VIOLATION": "Esta operação não pode ser concluída nas condições atuais.",
+  "RATE_LIMIT_EXCEEDED": "Muitas solicitações. Aguarde antes de tentar novamente.",
+  "INTERNAL_SERVER_ERROR": "Algo deu errado. Tente novamente.",
+  "NETWORK_ERROR": "Não foi possível conectar. Verifique sua conexão e tente novamente.",
+  "IDENTITY_UNAVAILABLE": "O serviço de autenticação está indisponível. Tente novamente em instantes.",
+  "IDENTITY_FLOW_INVALID": "O fluxo expirou ou não pôde ser validado. Inicie um novo acesso."
+}

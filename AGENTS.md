@@ -19,3 +19,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Preserve CSRF, CSP, cookies, state/nonce/PKCE e fail closed. Leia docs/security.md para mudanças nesses limites.
 - Rode lint, typecheck, testes e build; alterações de capability/auth exigem testes dos três perfis.
 - Sessão memory só suporta um processo; não prometer serverless/réplicas sem trocar store e refresh lock.
+- I18n é Core obrigatório: todo texto/aria-label de UI deve ser traduzível, via namespaces em messages e next-intl. DS recebe labels/children, nunca depende de next-intl.
+- Product API errors seguem ApiErrorResponse. Normalize uma vez; decisões por code/statusCode, nunca compare message. Message não é contrato estável.
+- Preserve requestId/x-correlation-id validado; nunca mostre mensagens técnicas de 500 ou registre bodies/secrets.
+- Mapear details somente para campos conhecidos. Zod no browser é UX; server validation permanece autoridade.
+- Não hardcode mensagens de erro nos componentes. Use localizedError/localizedValidation e a política de retry central.

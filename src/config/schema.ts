@@ -1,6 +1,7 @@
 import { z } from "zod";
 import template from "../../template.config.json";
 import { safeServiceUrl } from "../lib/validation/urls";
+import { supportedLocales, defaultLocale } from "../i18n/config";
 
 const flag = z.enum(["true", "false"]).transform(value => value === "true");
 const core = z.object({
@@ -8,6 +9,8 @@ const core = z.object({
   APP_KIND: z.enum(["public", "app", "backoffice"]).default(template.defaultKind as "public"),
   APP_URL: z.string().default("http://localhost:3000"),
   APP_NAME: z.string().trim().min(1).max(80).default("Ginga Application"),
+  I18N_DEFAULT_LOCALE: z.enum(supportedLocales).default(defaultLocale),
+  I18N_URL_STRATEGY: z.enum(["public-prefix", "cookie"]).default(template.i18n.urlStrategy.public as "public-prefix" | "cookie"),
 });
 const auth = z.object({
   OIDC_ISSUER: z.string().min(1),

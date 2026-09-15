@@ -1,0 +1,8 @@
+{
+  "IS_EMAIL": "Informe um endereço de e-mail válido.",
+  "IS_NOT_EMPTY": "Preencha este campo.",
+  "MIN_LENGTH": "O valor informado é muito curto.",
+  "MAX_LENGTH": "O valor informado é muito longo.",
+  "IS_UUID": "Informe um identificador válido.",
+  "INVALID_VALUE": "Revise o valor deste campo."
+}

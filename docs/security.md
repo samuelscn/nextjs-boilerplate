@@ -30,7 +30,7 @@
 
 ## CSP e headers
 
-Proxy gera nonce criptograficamente aleatório por resposta e o envia ao renderer do Next no header de request. Sobrescreve nonce/requestId fornecidos pelo chamador. Não usa proxy como fonte de autorização.
+Proxy gera nonce criptograficamente aleatório por resposta e o envia ao renderer do Next no header de request. Sobrescreve nonce e headers internos de locale/path. Correlation ID é validado ou gerado; não usa proxy/locale/correlation ID como fonte de autorização.
 
 Scripts: self + nonce + strict-dynamic; nenhum unsafe-inline ou unsafe-eval em produção. Development permite unsafe-eval para o Next. Styles: self + unsafe-inline, exceção explícita para atributos/posicionamento dos primitives Base UI do DS. Isso não habilita scripts inline. Não há wildcard de host. Imagens self/data, fonts self, connect-src self, object/base/frame restritos.
 
@@ -48,7 +48,9 @@ Logout local invalida imediatamente. Revogação remota é best effort e falhas 
 
 ## Logs e secrets
 
-Logger aceita somente nomes fixos de evento, status e requestId com formato validado. Não aceita objetos arbitrários, erros externos ou bodies. Nunca registrar Authorization, Cookie, Set-Cookie, code, tokens, secrets ou passwords. Request IDs são gerados no proxy, não confiados do browser.
+Logger aceita somente nomes fixos de evento, statusCode, código de erro e requestId com formato validado. Não aceita objetos arbitrários, mensagens externas ou bodies. Nunca registrar Authorization, Cookie, Set-Cookie, authorization code OAuth, tokens, secrets ou passwords. x-correlation-id válido pode ser preservado; valor inválido vira UUID. Um ID vindo do browser serve somente para correlação, nunca autenticação.
+
+I18n valida locales antes de carregar catálogos por imports explícitos. Troca de locale é POST com Origin, limite de body e redirect interno. Catálogos locais são confiáveis, mas inputs interpolados continuam não confiáveis; não renderizar HTML externo. Mensagens de API/Identity não são renderizadas diretamente: code → tradução; 500 é genérico. Payload de erro tem limite de 64 KiB e schema Zod, e DTOs do BFF removem message/details técnicos. Veja [erros](error-handling.md).
 
 Desabilitamos logging de URLs de entrada do Next. Configure também ingress/APM para não armazenar query de /auth/callback, headers sensíveis nem bodies. Não habilitar debug HTTP de bibliotecas OIDC em produção. Secrets ficam no ambiente do servidor ou secret manager; .env está ignorado e excluído do Docker context. Nenhuma env deste boilerplate tem prefixo NEXT_PUBLIC_.
 

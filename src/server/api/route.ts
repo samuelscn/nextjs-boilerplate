@@ -2,7 +2,9 @@ import "server-only";
 import type { z } from "zod";
 import { getEnv } from "@/config/env";
 import { HttpError } from "@/lib/http/error";
-import { readJson } from "@/lib/http/json";
+import { readBodyJson } from "@/lib/http/body";
+import { ApiError } from "@/lib/http/api-error";
+import { validationDetails } from "@/lib/validation/details";
 import { getSession } from "../auth";
 import { errorResponse, privateJson, requestId } from "../http";
 import { assertSameOrigin } from "../security/csrf";
@@ -25,9 +27,16 @@ export function createBffHandler<Input, Output>(options: {
       if (!await dependencies.getSession()) throw new HttpError(401, "unauthorized");
       let input: Input | undefined;
       if (options.input) {
+        let body: unknown;
         try {
-          input = await readJson(new Response(request.body, { headers: request.headers }), options.input, 16_384);
+          body = await readBodyJson(new Response(request.body, { headers: request.headers }), 16_384);
         } catch { throw new HttpError(400, "invalid_input"); }
+        const parsed = options.input.safeParse(body);
+        if (!parsed.success) throw new ApiError({
+          statusCode: 400, code: "VALIDATION_ERROR", message: "VALIDATION_ERROR",
+          timestamp: new Date().toISOString(), details: validationDetails(parsed.error),
+        });
+        input = parsed.data;
       }
       const result = options.output.safeParse(await options.execute(input, id));
       if (!result.success) throw new HttpError(502, "invalid_response");

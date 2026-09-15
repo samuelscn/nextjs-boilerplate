@@ -23,7 +23,7 @@ for (const path of chunks.filter(path => /\.(js|map|html)$/u.test(path))) {
   for (const marker of markers) assert.ok(!content.includes(marker), "Secret marker found in browser artifact: " + path);
 }
 const pkg = JSON.parse(await readFile("package.json", "utf8"));
-for (const name of ["next", "react", "react-dom", "openid-client", "jose", "zod", "react-hook-form", "@tanstack/react-query"]) {
+for (const name of ["next", "react", "react-dom", "openid-client", "jose", "zod", "react-hook-form", "@tanstack/react-query", "next-intl"]) {
   assert.match(pkg.dependencies[name], /^\d+\.\d+\.\d+$/u, "Critical dependency must be pinned: " + name);
 }
 assert.equal(pkg.dependencies.react, pkg.dependencies["react-dom"]);

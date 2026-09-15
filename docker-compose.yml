@@ -6,6 +6,8 @@ services:
       APP_KIND: ${APP_KIND:-public}
       APP_URL: ${APP_URL:?Set the external HTTPS origin}
       APP_NAME: ${APP_NAME:-Ginga Application}
+      I18N_DEFAULT_LOCALE: ${I18N_DEFAULT_LOCALE:-pt-BR}
+      I18N_URL_STRATEGY: ${I18N_URL_STRATEGY:-public-prefix}
       OIDC_ISSUER: ${OIDC_ISSUER:-}
       OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
       OIDC_CLIENT_TYPE: ${OIDC_CLIENT_TYPE:-confidential}
