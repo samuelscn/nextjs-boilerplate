@@ -40,7 +40,9 @@ Browser → Next → Product API. Server Components por padrão; browser usa BFF
 import { Button, Input, Card } from "@ginga/ui";
 ```
 
-O import resolve o pacote real @ginga-software/ui 0.1.4. CSS do DS é importado uma vez por globals.css. Tailwind 4.3.3 já vem compilado no pacote; não precisa de shadcn, tailwind.config ou PostCSS no consumidor.
+O import resolve o pacote real @ginga-software/ui 0.1.4. CSS do DS é importado uma vez por globals.css. A aplicação também compila suas próprias utilities Tailwind v4 pelo plugin em postcss.config.mjs, usando as classes de src. O CSS da lib já inclui preflight e estilos dos componentes: não é necessário escanear o pacote nem importar preflight novamente. Não precisa de shadcn ou tailwind.config.
+
+Use classes completas em className, por exemplo `flex flex-wrap items-center gap-3 md:gap-6`. globals.css conecta os tokens via `@theme inline`: `bg-primary`, `text-primary-foreground`, `border-border` e variantes seguem os mesmos valores dos componentes da lib. Estilos globais ficam nas layers base/components para permitir overrides por utilities. A variante `dark:` acompanha `.dark` em html. Evite montar classes dinamicamente como `bg-${color}`; use um mapa com strings completas.
 
 Branding: sobrescreva tokens em src/app/globals.css, depois do import do DS. Pares suportados: primary/primary-foreground, accent/accent-foreground, background/foreground, card, popover, secondary, muted, destructive, border, input, ring; também radius, font-sans/font-mono, chart-1…5 e sidebar-*. Verifique contraste, foco e light/dark. Sem theme engine adicional ou fontes externas.
 

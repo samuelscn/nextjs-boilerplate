@@ -5,12 +5,12 @@ import { localeNames, supportedLocales } from "@/i18n/config";
 export function LocaleSwitcher({ returnTo = "/" }: { returnTo?: string }) {
   const locale = useLocale();
   const t = useTranslations("common");
-  return <form method="post" action="/api/locale" className="locale-switcher">
+  return <form method="post" action="/api/locale" className="flex flex-wrap items-center justify-end gap-3 p-4">
     <input type="hidden" name="returnTo" value={returnTo} />
-    <Field>
-      <FieldLabel>{t("language")}</FieldLabel>
+    <Field orientation="horizontal" className="w-full sm:w-auto">
+      <FieldLabel htmlFor="locale-switcher">{t("language")}</FieldLabel>
       <Select name="locale" defaultValue={locale}>
-        <SelectTrigger aria-label={t("language")}>
+        <SelectTrigger id="locale-switcher" aria-label={t("language")}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

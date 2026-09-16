@@ -14,7 +14,7 @@ Inspeção realizada antes da implementação. A cópia recebida não disponibil
 | HTTP fetch e erros, RHF/Zod, Query Provider | CORE_REUSABLE / NEEDS_REFACTOR | Preservar conceitos; adicionar boundaries, limites e validação |
 | Componentes internos shadcn e Storybook/builds gerados | LEGACY | Remover duplicação; consumir pacote oficial |
 | TypeScript strict, ESLint flat config | CORE_REUSABLE | Atualizar e reforçar opções de segurança |
-| Tailwind v4/PostCSS | NEEDS_REFACTOR | CSS compilado do DS; CSS semântico próprio, sem pipeline duplicado |
+| Tailwind v4/PostCSS | IMPLEMENTED | Utilities da aplicação compiladas por PostCSS; tokens conectados ao DS, sem repetir preflight |
 | Docker/Compose | CORE_REUSABLE / NEEDS_REFACTOR | Standalone, non-root, sem env no build context |
 | Variável única de backend, .env local | PRODUCT_SPECIFIC / SECURITY_RISK | Remover do projeto; validação contextual e .env.example |
 | Testes, CI, automação de segurança | NEEDS_REFACTOR | Ausentes na árvore de fontes recebida; implementar |

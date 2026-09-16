@@ -1,5 +1,39 @@
 import { expect, test } from "@playwright/test";
 
+test("application utilities and DS token overrides", async ({ page }) => {
+  await page.goto("/auth/error?reason=unavailable");
+  const form = page.locator('form[action="/api/locale"]');
+  const field = form.locator('[data-slot="field"]');
+  await expect(form).toHaveCSS("display", "flex");
+  await expect(form).toHaveCSS("gap", "12px");
+  await expect(field).toHaveCSS("flex-direction", "row");
+  const desktopForm = await form.boundingBox();
+  const desktopField = await field.boundingBox();
+  expect(desktopField!.width).toBeLessThan(desktopForm!.width / 2);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobileForm = await form.boundingBox();
+  const mobileField = await field.boundingBox();
+  expect(mobileField!.width).toBeCloseTo(mobileForm!.width - 32, 0);
+
+  // Both DS components and consumer utilities resolve the product's live tokens.
+  for (const dark of [false, true]) {
+    await page.evaluate(dark => {
+      document.documentElement.classList.toggle("dark", dark);
+      document.documentElement.style.setProperty("--background", "rgb(12, 34, 56)");
+      document.documentElement.style.setProperty("--primary", "rgb(45, 67, 89)");
+      document.documentElement.style.setProperty("--radius", "20px");
+      const probe = document.createElement("div");
+      probe.id = "theme-probe";
+      probe.className = "bg-primary";
+      document.querySelector("#theme-probe")?.remove();
+      document.body.append(probe);
+    }, dark);
+    await expect(page.locator("body")).toHaveCSS("background-color", "rgb(12, 34, 56)");
+    await expect(form.getByRole("button", { name: "Aplicar idioma" })).toHaveCSS("border-radius", "20px");
+    await expect(page.locator("#theme-probe")).toHaveCSS("background-color", "rgb(45, 67, 89)");
+  }
+});
+
 test("production profile, CSP, cookie and unauthenticated boundaries", async ({ page, request, baseURL }, info) => {
   const kind = info.project.name;
   const errors: string[] = [];
@@ -78,7 +112,8 @@ test("locale URLs, preference cookie, metadata and localized errors", async ({ p
   });
   await page.goto(kind === "public" ? "/pt-BR" : "/auth/error?reason=unavailable");
   await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
-  await page.getByLabel("Idioma").selectOption("en");
+  await page.getByRole("combobox", { name: "Idioma" }).click();
+  await page.getByRole("option", { name: "English" }).click();
   await page.getByRole("button", { name: "Aplicar idioma" }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   const cookie = (await page.context().cookies()).find(value => value.name === "ginga_locale");

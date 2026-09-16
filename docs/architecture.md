@@ -43,7 +43,7 @@ sequenceDiagram
 
 Next 16.3.5 tem os patches de segurança de agosto e uma correção de nonce nos scripts de loading/template. React 19.3.0 é a peer dependency do Ginga UI 0.1.4. Apesar de recente, essa versão é exigida pelo contrato do DS; não usamos APIs experimentais de React. Ver [dependências](dependencies.md).
 
-O CSS Tailwind 4.3.3 já foi compilado pelo DS. O consumidor usa CSS semântico para layout e overrides; não instala pipeline Tailwind paralelo. O DS 0.1.4 não exporta AppShell/Sidebar/Breadcrumbs: a composição semântica de sidebar/header/navigation pertence a este boilerplate. Não há breadcrumb fictício para uma navegação de nível único.
+O CSS Tailwind 4.3.3 dos componentes já foi compilado pelo DS. A aplicação usa Tailwind v4/PostCSS para gerar suas próprias utilities a partir de src; globals.css importa o CSS do DS uma vez, sem repetir preflight ou escanear o package. O bloco @theme inline conecta cores e raios aos tokens do DS; overrides de marca ficam em :root e .dark no mesmo arquivo. CSS semântico fica nas layers base/components, abaixo das utilities. O DS 0.1.4 não exporta AppShell/Sidebar/Breadcrumbs: a composição semântica de sidebar/header/navigation pertence a este boilerplate. Não há breadcrumb fictício para uma navegação de nível único.
 
 Public usa renderização dinâmica para uma CSP com nonce por resposta, assim como os perfis autenticados. Exportação estática/ISR não é um modo suportado desta entrega. Uma futura capability estática exigirá política de hashes/headers no host, testes e uma decisão explícita; não ativar SRI experimental apenas para contornar isso.
 

@@ -69,7 +69,7 @@ for (const [index, kind] of ["public", "app", "backoffice"].entries()) {
     APP_NAME: "Ginga Application", NEXT_TELEMETRY_DISABLED: "1", NODE_EXTRA_CA_CERTS: certFile });
   if (kind !== "public") Object.assign(env, {
     OIDC_ISSUER: issuer, OIDC_CLIENT_ID: "e2e-client", OIDC_CLIENT_SECRET: "test-only-e2e-secret",
-    OIDC_AUDIENCE: "https://localhost:5443", SESSION_SINGLE_PROCESS: "true",
+    OIDC_AUDIENCE: "https://localhost:5443", OIDC_ALLOW_HTTP: "false", SESSION_SINGLE_PROCESS: "true",
   });
   const child = spawn(process.execPath, [".next/standalone/server.js"],
     { env: { ...env, PORT: String(internal), HOSTNAME: "127.0.0.1" }, stdio: ["ignore", "ignore", "inherit"] });

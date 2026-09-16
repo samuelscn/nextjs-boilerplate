@@ -25,7 +25,7 @@ Stable + supported + security patched + tested, não atualização automática p
 | Playwright | 1.63.0 | Dev, E2E em builds de produção com Chromium |
 | @types/node / react / react-dom | 24.13.4 / 19.3.0 / 19.3.0 | Dev, tipos do runtime adotado |
 
-Tailwind 4.3.3 já está no artefato compilado do DS; não é uma dependency direta deste produto. Não há Axios, Storybook, shadcn CLI, Redis, Redux/Zustand, libs de datas, analytics ou utilitários de domínio.
+Tailwind CSS e @tailwindcss/postcss 4.3.3 são devDependencies diretas para compilar as utilities da aplicação. O CSS dos componentes continua vindo pronto do DS, sem duplicar preflight. Não há Axios, Storybook, shadcn CLI, Redis, Redux/Zustand, libs de datas, analytics ou utilitários de domínio.
 
 ESLint 9 chegou a EOL; eslint-config-next trazia um eslint-plugin-react incompatível com a API ESLint 10. Escolhemos o plugin oficial Next + typescript-eslint + react-hooks sem esse preset, evitando peer override e ferramenta EOL. TypeScript 7 não foi adotado porque o parser atual suporta <6.1; 6.0.3 é testado neste conjunto.
 

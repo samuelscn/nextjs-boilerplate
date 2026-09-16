@@ -1,20 +1,71 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
 @import "@ginga/ui/styles.css";
+/* Ginga UI already includes preflight and its component utilities. */
+@import "tailwindcss/utilities.css" layer(utilities) source("..");
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Bridge application utilities to the DS tokens, without duplicating colors. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) * .6);
+  --radius-md: calc(var(--radius) * .8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
 
 /* Override semantic tokens here; component internals stay in the Design System.
    Always change foreground/background pairs together and check contrast. */
 :root { --font-sans: ui-sans-serif, system-ui, sans-serif; }
 
+@layer base {
 body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-sans); }
 h1 { font-size: 2rem; font-weight: 650; line-height: 1.2; }
 h2 { font-size: 1.25rem; font-weight: 600; }
 a { text-underline-offset: .2em; }
 a:hover { text-decoration: underline; }
 :focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
+}
+
+@layer components {
 .page { width: min(100% - 2.5rem, 64rem); margin: 4rem auto; }
 .stack { display: grid; gap: 1rem; }
 .actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
-.locale-switcher { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .75rem; padding: 1rem; }
-.locale-switcher select { max-width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: .5rem; background: var(--background); color: var(--foreground); }
 .page-header { display: grid; gap: .75rem; margin-bottom: 2rem; }
 .muted { color: var(--muted-foreground); }
 .skip-link { position: fixed; top: -10rem; left: 1rem; z-index: 100; padding: 1rem; background: var(--background); color: var(--foreground); }
@@ -34,4 +85,5 @@ a:hover { text-decoration: underline; }
   .sidebar { border-right: 0; border-bottom: 1px solid var(--border); padding: 1rem; }
   .shell-main, .shell-header { padding: 1rem; }
   .navigation { padding-bottom: 0; }
+}
 }
