@@ -48,7 +48,7 @@ function ready(port) {
   return new Promise((resolve, reject) => {
     const deadline = Date.now() + 40_000;
     const attempt = () => {
-      const req = get("http://127.0.0.1:" + port + "/api/health", response => {
+      const req = get("http://localhost:" + port + "/api/health", response => {
         response.resume();
         if (response.statusCode === 200) resolve();
         else retry();
@@ -72,12 +72,13 @@ for (const [index, kind] of ["public", "app", "backoffice"].entries()) {
     OIDC_AUDIENCE: "https://localhost:5443", OIDC_ALLOW_HTTP: "false", SESSION_SINGLE_PROCESS: "true",
   });
   const child = spawn(process.execPath, [".next/standalone/server.js"],
-    { env: { ...env, PORT: String(internal), HOSTNAME: "127.0.0.1" }, stdio: ["ignore", "ignore", "inherit"] });
+    // NextURL normalizes loopback IPs to localhost; match it so rewrites stay internal.
+    { env: { ...env, PORT: String(internal), HOSTNAME: "localhost" }, stdio: ["ignore", "ignore", "inherit"] });
   processes.push(child);
   child.on("exit", code => { if (!closing && code !== 0) void close().then(() => process.exit(1)); });
   await ready(internal);
   const ingress = httpsServer(tls, (request, response) => {
-    const upstream = httpRequest({ host: "127.0.0.1", port: internal, path: request.url, method: request.method,
+    const upstream = httpRequest({ host: "localhost", port: internal, path: request.url, method: request.method,
       headers: { ...request.headers, host: "localhost:" + external, "x-forwarded-proto": "https" } }, result => {
       response.writeHead(result.statusCode ?? 502, result.headers); result.pipe(response);
     });

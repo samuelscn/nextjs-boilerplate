@@ -45,4 +45,14 @@ describe("locale strategy and preference mutation", () => {
       expect((await POST(request(body))).status).toBe(400);
     }
   });
+  it("returns to passive auth pages after a language change, never auth actions", async () => {
+    for (const path of ["/auth/error", "/auth/signed-out"]) {
+      const response = await POST(request(new URLSearchParams({ locale: "en", returnTo: path }).toString()));
+      expect(response.headers.get("location")).toBe("https://app.test" + path);
+    }
+    for (const path of ["/auth/login", "/auth/logout", "/auth/callback", "/auth/error/../login", "/api/session", "//evil.test"]) {
+      const response = await POST(request(new URLSearchParams({ locale: "en", returnTo: path }).toString()));
+      expect(response.headers.get("location")).toBe("https://app.test/en");
+    }
+  });
 });

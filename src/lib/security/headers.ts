@@ -14,7 +14,9 @@ export function securityHeaders(nonce: string, production: boolean, identityOrig
       ...(production ? ["upgrade-insecure-requests"] : []),
     ].join("; "),
     "X-Content-Type-Options": "nosniff",
-    "Referrer-Policy": "no-referrer",
+    // Native same-origin POST forms need a real Origin for CSRF validation.
+    // no-referrer turns it into "null"; same-origin still hides external referrers.
+    "Referrer-Policy": "same-origin",
     "X-Frame-Options": "DENY",
     "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
     ...(production ? { "Strict-Transport-Security": "max-age=31536000" } : {}),

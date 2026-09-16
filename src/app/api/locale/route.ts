@@ -34,7 +34,9 @@ export async function POST(request: Request) {
     if (params.getAll("locale").length !== 1 || params.getAll("returnTo").length > 1) throw new HttpError(400, "VALIDATION_ERROR");
     const parsed = input.safeParse(Object.fromEntries(params));
     if (!parsed.success) throw new HttpError(400, "VALIDATION_ERROR");
-    const path = internalReturnPath(parsed.data.returnTo, "/");
+    // Locale changes may return to these passive auth pages, never auth actions.
+    const path = ["/auth/error", "/auth/signed-out"].includes(parsed.data.returnTo)
+      ? parsed.data.returnTo : internalReturnPath(parsed.data.returnTo, "/");
     const stripped = stripLocale(path);
     const destination = publicPrefix(env) && isPublicPagePath(stripped.path) ? localizedPath(stripped.path, parsed.data.locale) : path;
     const response = NextResponse.redirect(new URL(destination, env.APP_URL), 303);

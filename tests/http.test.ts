@@ -5,11 +5,28 @@ import { createBffHandler } from "@/server/api/route";
 import { readJson } from "@/lib/http/json";
 import { bffRequest } from "@/lib/http/browser";
 import { assertSameOrigin } from "@/server/security/csrf";
+import { securityHeaders } from "@/lib/security/headers";
 import { authEnv } from "./helpers";
 
 vi.mock("next/headers", () => ({ cookies: vi.fn() }));
 const schema = z.object({ label: z.string() });
 describe("HTTP and BFF security", () => {
+  it("preserves same-origin form origins without sending external referrers", () => {
+    expect(securityHeaders("test-nonce", true)["Referrer-Policy"]).toBe("same-origin");
+    expect(securityHeaders("test-nonce", false)["Referrer-Policy"]).toBe("same-origin");
+  });
+  it.each(["same-site", "cross-site"])("rejects %s mutations even with a matching origin", site => {
+    const request = new Request("https://app.test/api/example", {
+      method: "POST", headers: { origin: "https://app.test", "sec-fetch-site": site },
+    });
+    expect(() => assertSameOrigin(request, "https://app.test")).toThrow();
+  });
+  it("accepts same-origin POSTs through an internal HTTP ingress", () => {
+    const request = new Request("http://127.0.0.1:3400/api/example", {
+      method: "POST", headers: { origin: "https://app.test", "sec-fetch-site": "same-origin" },
+    });
+    expect(() => assertSameOrigin(request, "https://app.test")).not.toThrow();
+  });
   it("validates JSON and strips fields outside the public schema", async () => {
     expect(await readJson(Response.json({ label: "ok", refresh_token: "never-serialize" }), schema)).toEqual({ label: "ok" });
     await expect(readJson(Response.json({ other: 1 }), schema)).rejects.toMatchObject({ status: 502 });
