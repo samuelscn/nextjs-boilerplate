@@ -24,7 +24,7 @@
   "dependencies": {
     "@ginga/ui": "file:vendor/ginga-software-ui-0.1.4.tgz",
     "@hookform/resolvers": "5.9.1",
-    "@tanstack/react-query": "5.102.8",
+    "@tanstack/react-query": "5.103.1",
     "jose": "6.2.12",
     "next": "16.3.5",
     "next-intl": "4.14.5",
@@ -39,7 +39,7 @@
     "@eslint/js": "10.0.1",
     "@next/eslint-plugin-next": "16.3.5",
     "@playwright/test": "1.63.0",
-    "@tanstack/eslint-plugin-query": "5.102.8",
+    "@tanstack/eslint-plugin-query": "5.103.1",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.3",
     "@testing-library/user-event": "14.6.7",
