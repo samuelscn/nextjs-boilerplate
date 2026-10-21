@@ -8,7 +8,7 @@ description: Verify a changed screen in a real browser with the Playwright MCP (
 Detalhes em docs/frontend-verification.md.
 
 1. `npm run dev` (com `API_MODE=mock` se não houver Product API) e confirme em `GET /api/health` o modo e as flags.
-2. Rotas protegidas exigem sessão do Ginga Identity: peça ao usuário para entrar; **nunca** digite credenciais nem contorne o login.
+2. Rotas protegidas: use o MCP `playwright-session`. Se não houver sessão salva (ou ela expirou), peça ao usuário para rodar `npm run dev:login` e entrar; **nunca** digite credenciais nem contorne o login.
 3. Com o MCP `playwright`:
    - `browser_navigate` na rota; `browser_snapshot` para estrutura, nomes acessíveis e textos traduzidos;
    - exercite busca (aguarde o debounce), filtros múltiplos, paginação e confira a URL;

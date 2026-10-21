@@ -19,13 +19,13 @@ A versão do `@playwright/mcp` é fixada no `.mcp.json` e executada via `npx`; n
 
 ## Autenticação
 
-Perfis `app` e `backoffice` redirecionam ao Ginga Identity. O agente não deve digitar credenciais reais nem contornar o fluxo. Opções:
+Perfis `app` e `backoffice` redirecionam ao Ginga Identity. O agente nunca digita credenciais nem contorna o fluxo.
 
-- Verificar telas públicas e o redirecionamento sem sessão.
-- Subir Identity local e fazer login manualmente em um browser headed (`--headed` via override da config) enquanto a sessão durar.
-- Para validar componentes isolados, usar rotas públicas de exemplo ou testes de componente.
+1. Com `npm run dev` rodando, execute `npm run dev:login` (opcionalmente com a rota: `npm run dev:login -- /backoffice/users`). Um Chromium visível abre; **você** entra no Identity.
+2. Ao voltar para a aplicação, o script salva `.playwright-mcp/storage-state.json` (gitignored).
+3. O agente usa o servidor MCP `playwright-session`, que carrega essa sessão. O `playwright` continua anônimo, para telas públicas e para conferir o redirect.
 
-Sessões ficam apenas em memória do servidor; nada de token é persistido pelo MCP por causa de `isolated`.
+A sessão vive na memória do servidor de desenvolvimento: reiniciar o `npm run dev` ou expirar a sessão exige repetir o passo 1. Para telas restritas, combine com `API_MODE=mock` e `API_MOCK_PERMISSIONS` (por exemplo `member:read`) para verificar estados sem permissão.
 
 ## Fluxo esperado do agente
 

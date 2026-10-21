@@ -2,7 +2,23 @@
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["-y", "@playwright/mcp@0.0.83", "--config", ".playwright/mcp.config.json"]
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.83",
+        "--config",
+        ".playwright/mcp.config.json"
+      ]
+    },
+    "playwright-session": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.83",
+        "--config",
+        ".playwright/mcp.config.json",
+        "--storage-state",
+        ".playwright-mcp/storage-state.json"
+      ]
     }
   }
 }
