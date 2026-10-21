@@ -1,3 +1,5 @@
+Closes <ID-DO-LINEAR>
+
 ## Mudança
 
 Problema e comportamento resultante:

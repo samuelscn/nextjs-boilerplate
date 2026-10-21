@@ -12,6 +12,7 @@
 | Restringir por permissão | `docs/authorization.md`, `src/lib/access`, `<Can>` | `add-permission` |
 | Liberar gradualmente/por ambiente | `src/config/flags.ts`, `docs/feature-flags.md` | `add-feature-flag` |
 | Tratar código de erro da API | `docs/error-handling.md`, `messages/*/errors.json` | `add-error-code` |
+| Começar uma história do Linear, branch, commit ou PR | `docs/workflow.md` (setup), Trunk-Based | `story-workflow` |
 | Conferir a tela no navegador | `docs/frontend-verification.md`, MCP `playwright` | `verify-ui` |
 | Texto de UI | `messages/pt-BR` e `messages/en`, `useTranslations` | (lint barra literais) |
 | Componente visual | `@ginga/ui` (ginga-design-system); faltou algo → evolua o DS, não o produto | |
