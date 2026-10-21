@@ -1,7 +1,8 @@
 "use client";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
-import { CheckIcon, ChevronsUpDownIcon, GlobeIcon, LogOutIcon, UserRoundIcon } from "lucide-react";
+import { CheckIcon, ChevronsUpDownIcon, GlobeIcon, LogOutIcon, PaletteIcon, UserRoundIcon } from "lucide-react";
+import { themes, type Theme } from "@/lib/theme";
 import {
   Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
   DropdownMenuSeparator, DropdownMenuTrigger, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
@@ -10,7 +11,7 @@ import { localeNames, supportedLocales } from "@/i18n/config";
 
 // Account, language and sign-out live together in the sidebar footer. Both actions stay native POST forms
 // (CSRF/origin checks and a full document navigation), so the menu needs no client state of its own.
-export function UserMenu() {
+export function UserMenu({ theme }: { theme: Theme }) {
   const t = useTranslations();
   const locale = useLocale();
   const pathname = usePathname();
@@ -29,6 +30,17 @@ export function UserMenu() {
           {supportedLocales.map(value => <DropdownMenuItem key={value} nativeButton render={<button type="submit" name="locale" value={value} lang={value} />}>
             <span className="flex-1 text-left">{localeNames[value]}</span>
             {value === locale && <CheckIcon className="size-4" aria-label="✓" />}
+          </DropdownMenuItem>)}
+        </DropdownMenuGroup>
+      </form>
+      <DropdownMenuSeparator />
+      <form method="post" action="/api/theme">
+        <input type="hidden" name="returnTo" value={pathname} />
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="flex items-center gap-2"><PaletteIcon className="size-4" />{t("backoffice.theme.label")}</DropdownMenuLabel>
+          {themes.map(value => <DropdownMenuItem key={value} nativeButton render={<button type="submit" name="theme" value={value} aria-current={value === theme ? "true" : undefined} />}>
+            <span className="flex-1 text-left">{t("backoffice.theme." + value)}</span>
+            {value === theme && <CheckIcon className="size-4" aria-hidden />}
           </DropdownMenuItem>)}
         </DropdownMenuGroup>
       </form>

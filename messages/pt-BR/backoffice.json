@@ -53,7 +53,9 @@
       "open": "Ações para {user}",
       "roles": "Roles",
       "suspend": "Suspender acesso",
-      "reactivate": "Reativar acesso"
+      "reactivate": "Reativar acesso",
+      "rolesChanged": "Roles atualizadas.",
+      "statusChanged": "Acesso atualizado."
     },
     "empty": {
       "title": "Nenhum usuário encontrado",
@@ -96,7 +98,9 @@
         "descriptionField": "Descrição",
         "permissions": "Permissões",
         "submit": "Salvar role"
-      }
+      },
+      "saved": "Role salva.",
+      "deleted": "Role excluída."
     }
   },
   "mobileDescription": "Exibe o menu lateral de navegação.",
@@ -123,5 +127,11 @@
     }
   },
   "mockData": "Dados simulados",
-  "mockDataHint": "API_MODE=mock: dados em memória, não vêm da Product API."
+  "mockDataHint": "API_MODE=mock: dados em memória, não vêm da Product API.",
+  "theme": {
+    "label": "Tema",
+    "system": "Sistema",
+    "light": "Claro",
+    "dark": "Escuro"
+  }
 }

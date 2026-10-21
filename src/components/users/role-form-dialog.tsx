@@ -15,6 +15,7 @@ import { applyFieldErrors } from "@/lib/validation/form-errors";
 import { createRoleSchema, roleSchema, type PermissionCatalog, type Role, type RoleValues } from "@/lib/validation/users";
 import { ErrorState } from "../feedback";
 import { permissionLabel, resourceLabel } from "./labels";
+import { useNotify } from "@/hooks/use-notify";
 
 const slugify = (value: string) => value.normalize("NFD").replace(/[̀-ͯ]/gu, "").toLowerCase()
   .replace(/[^a-z0-9]+/gu, "-").replace(/^[^a-z]+|-+$/gu, "").slice(0, 80);
@@ -28,6 +29,7 @@ export function RoleFormDialog({ role, catalog, open, onOpenChange }: { role?: R
   const router = useRouter();
   const id = useId();
   const [failure, setFailure] = useState<unknown>();
+  const notify = useNotify();
   const defaults: RoleValues = { name: role?.name ?? "", slug: role?.slug ?? "", description: role?.description ?? "", permissions: role?.permissions ?? [] };
   const { register, control, handleSubmit, setError, setValue, reset, getFieldState, formState: { errors } } = useForm<RoleValues>({
     resolver: zodResolver(createRoleSchema(code => t("validation." + code))), defaultValues: defaults,
@@ -36,7 +38,7 @@ export function RoleFormDialog({ role, catalog, open, onOpenChange }: { role?: R
     mutationFn: (values: RoleValues) => role
       ? bffRequest("/api/roles/update", roleSchema, { method: "POST", body: { ...values, id: role.id } })
       : bffRequest("/api/roles/create", roleSchema, { method: "POST", body: values }),
-    onSuccess: () => { onOpenChange(false); router.refresh(); },
+    onSuccess: () => { onOpenChange(false); notify.success("backoffice.users.rolesTab.saved"); router.refresh(); },
     onError: error => {
       if (error instanceof ApiError && error.code === "VALIDATION_ERROR") applyFieldErrors(error.details, ["name", "slug", "description", "permissions"], setError, t);
       setFailure(normalizeFrontendError(error));

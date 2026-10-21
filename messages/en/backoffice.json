@@ -53,7 +53,9 @@
       "open": "Actions for {user}",
       "roles": "Roles",
       "suspend": "Suspend access",
-      "reactivate": "Reactivate access"
+      "reactivate": "Reactivate access",
+      "rolesChanged": "Roles updated.",
+      "statusChanged": "Access updated."
     },
     "empty": {
       "title": "No users found",
@@ -96,7 +98,9 @@
         "descriptionField": "Description",
         "permissions": "Permissions",
         "submit": "Save role"
-      }
+      },
+      "saved": "Role saved.",
+      "deleted": "Role deleted."
     }
   },
   "mobileDescription": "Shows the side navigation menu.",
@@ -123,5 +127,11 @@
     }
   },
   "mockData": "Simulated data",
-  "mockDataHint": "API_MODE=mock: in-memory data, not from the Product API."
+  "mockDataHint": "API_MODE=mock: in-memory data, not from the Product API.",
+  "theme": {
+    "label": "Theme",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
+  }
 }

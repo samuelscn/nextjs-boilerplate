@@ -15,6 +15,7 @@ import { useCan } from "@/providers/access-provider";
 import { useFlag } from "@/providers/flags-provider";
 import { ErrorState } from "../feedback";
 import { RoleFormDialog } from "./role-form-dialog";
+import { useNotify } from "@/hooks/use-notify";
 import { roleDescription, roleLabel } from "./labels";
 
 export function RolesPanel({ roles, catalog }: { roles: Role[]; catalog: PermissionCatalog }) {
@@ -30,10 +31,11 @@ export function RolesPanel({ roles, catalog }: { roles: Role[]; catalog: Permiss
   const [editing, setEditing] = useState<Role | "new">();
   const [deleting, setDeleting] = useState<Role>();
   const [failure, setFailure] = useState<unknown>();
+  const notify = useNotify();
   const remove = useMutation({
     mutationFn: (role: Role) => bffRequest("/api/roles/delete", okSchema, { method: "POST", body: { id: role.id } }),
     onMutate: () => setFailure(undefined),
-    onSuccess: () => { setDeleting(undefined); router.refresh(); },
+    onSuccess: () => { setDeleting(undefined); notify.success("backoffice.users.rolesTab.deleted"); router.refresh(); },
     onError: error => { setDeleting(undefined); setFailure(error); },
   });
   return <div className="grid gap-4">

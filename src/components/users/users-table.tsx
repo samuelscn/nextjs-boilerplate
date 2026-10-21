@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
@@ -12,7 +11,7 @@ import {
 import { bffRequest } from "@/lib/http/browser";
 import { memberSchema, okSchema, type Member, type Role } from "@/lib/validation/users";
 import { useCan } from "@/providers/access-provider";
-import { ErrorState } from "../feedback";
+import { useNotify } from "@/hooks/use-notify";
 import { roleLabel } from "./labels";
 
 const statusVariant = { active: "default", invited: "secondary", suspended: "outline" } as const;
@@ -28,7 +27,7 @@ export function UsersTable({ members, roles }: { members: Member[]; roles: Role[
   const tRoles = useTranslations("backoffice.users.roles");
   const format = useFormatter();
   const router = useRouter();
-  const [failure, setFailure] = useState<unknown>();
+  const notify = useNotify();
   const canAssign = useCan("role:assign") && roles.length > 0;
   const canUpdate = useCan("member:update");
   const mutate = useMutation({
@@ -36,9 +35,11 @@ export function UsersTable({ members, roles }: { members: Member[]; roles: Role[
       if (request.path === "/api/users/roles") await bffRequest(request.path, okSchema, { method: "POST", body: request.body });
       else await bffRequest(request.path, memberSchema, { method: "POST", body: request.body });
     },
-    onMutate: () => setFailure(undefined),
-    onSuccess: () => router.refresh(),
-    onError: setFailure,
+    onSuccess: (_result, request) => {
+      notify.success(request.path === "/api/users/roles" ? "backoffice.users.actions.rolesChanged" : "backoffice.users.actions.statusChanged");
+      router.refresh();
+    },
+    onError: notify.error,
   });
   const byId = new Map(roles.map(role => [role.id, role]));
   if (!members.length) return <Card className="items-center gap-2 py-16 text-center">
@@ -46,7 +47,6 @@ export function UsersTable({ members, roles }: { members: Member[]; roles: Role[
     <h2>{t("empty.title")}</h2><p className="text-muted-foreground">{t("empty.description")}</p>
   </Card>;
   return <div className="grid gap-3">
-    {failure !== undefined && <ErrorState error={failure} />}
     <Card className="gap-0 overflow-hidden py-0">
       <Table className="min-w-[44rem]">
         <TableCaption className="sr-only">{t("table.label")}</TableCaption>

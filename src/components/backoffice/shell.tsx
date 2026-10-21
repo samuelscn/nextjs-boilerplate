@@ -6,9 +6,10 @@ import {
 } from "@ginga/ui";
 import { Navigation } from "./navigation";
 import { UserMenu } from "./user-menu";
+import type { Theme } from "@/lib/theme";
 
 // `mockData` marks API_MODE=mock so nobody mistakes simulated data for the real API.
-export function BackofficeShell({ children, mockData = false }: { children: React.ReactNode; mockData?: boolean }) {
+export function BackofficeShell({ children, mockData = false, theme = "system" }: { children: React.ReactNode; mockData?: boolean; theme?: Theme }) {
   const t = useTranslations("backoffice");
   return <TooltipProvider><SidebarProvider>
     <Sidebar collapsible="icon" mobileTitle={t("title")} mobileDescription={t("mobileDescription")}>
@@ -19,7 +20,7 @@ export function BackofficeShell({ children, mockData = false }: { children: Reac
         </SidebarMenuButton>
       </SidebarMenuItem></SidebarMenu></SidebarHeader>
       <SidebarContent><Navigation /></SidebarContent>
-      <SidebarFooter><UserMenu /></SidebarFooter>
+      <SidebarFooter><UserMenu theme={theme} /></SidebarFooter>
       <SidebarRail label={t("openMenu")} />
     </Sidebar>
     <SidebarInset id="main-content" tabIndex={-1}>

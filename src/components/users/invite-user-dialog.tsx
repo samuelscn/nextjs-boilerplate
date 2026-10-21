@@ -16,6 +16,7 @@ import { applyFieldErrors } from "@/lib/validation/form-errors";
 import { createInviteSchema, memberSchema, type InviteValues, type Role } from "@/lib/validation/users";
 import { ErrorState } from "../feedback";
 import { roleLabel } from "./labels";
+import { useNotify } from "@/hooks/use-notify";
 
 export function InviteUserDialog({ roles }: { roles: Role[] }) {
   const t = useTranslations();
@@ -24,12 +25,13 @@ export function InviteUserDialog({ roles }: { roles: Role[] }) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const [failure, setFailure] = useState<unknown>();
+  const notify = useNotify();
   const { register, control, handleSubmit, setError, reset, formState: { errors } } = useForm<InviteValues>({
     resolver: zodResolver(createInviteSchema(code => t("validation." + code))), defaultValues: { email: "", roleId: "" },
   });
   const invite = useMutation({
     mutationFn: (values: InviteValues) => bffRequest("/api/users/invite", memberSchema, { method: "POST", body: values }),
-    onSuccess: () => { setOpen(false); reset(); router.refresh(); },
+    onSuccess: () => { setOpen(false); reset(); notify.success("backoffice.users.invite.sent"); router.refresh(); },
     onError: error => {
       if (error instanceof ApiError && error.code === "VALIDATION_ERROR") applyFieldErrors(error.details, ["email", "roleId"], setError, t);
       setFailure(normalizeFrontendError(error));

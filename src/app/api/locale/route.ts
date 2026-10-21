@@ -5,7 +5,7 @@ import { isPublicPagePath, localeCookie, localizedPath, publicPrefix, stripLocal
 import { HttpError } from "@/lib/http/error";
 import { internalReturnPath } from "@/lib/validation/urls";
 import { assertSameOrigin } from "@/server/security/csrf";
-import { errorResponse, requestId } from "@/server/http";
+import { errorResponse, readSmallForm, requestId } from "@/server/http";
 
 const input = z.object({ locale: z.enum(supportedLocales), returnTo: z.string().max(2048).default("/") });
 export async function POST(request: Request) {
@@ -13,24 +13,7 @@ export async function POST(request: Request) {
   try {
     const env = getEnv();
     assertSameOrigin(request, env.APP_URL);
-    if (request.headers.get("content-type")?.split(";")[0] !== "application/x-www-form-urlencoded") throw new HttpError(400, "VALIDATION_ERROR");
-    // Bounded form body, not unbounded request.formData().
-    const reader = request.body?.getReader();
-    if (!reader) throw new HttpError(400, "VALIDATION_ERROR");
-    let text = "";
-    const decoder = new TextDecoder();
-    let size = 0;
-    try {
-      while (true) {
-        const part = await reader.read();
-        if (part.done) break;
-        size += part.value.byteLength;
-        if (size > 4096) throw new HttpError(400, "VALIDATION_ERROR");
-        text += decoder.decode(part.value, { stream: true });
-      }
-      text += decoder.decode();
-    } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
-    const params = new URLSearchParams(text);
+    const params = await readSmallForm(request);
     if (params.getAll("locale").length !== 1 || params.getAll("returnTo").length > 1) throw new HttpError(400, "VALIDATION_ERROR");
     const parsed = input.safeParse(Object.fromEntries(params));
     if (!parsed.success) throw new HttpError(400, "VALIDATION_ERROR");
