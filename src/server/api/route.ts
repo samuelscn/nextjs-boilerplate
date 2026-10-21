@@ -5,6 +5,7 @@ import { HttpError } from "@/lib/http/error";
 import { readBodyJson } from "@/lib/http/body";
 import { ApiError } from "@/lib/http/api-error";
 import { validationDetails } from "@/lib/validation/details";
+import { toRawSearchParams } from "@/lib/list/params";
 import type { Permission } from "@/lib/access/permissions";
 import type { FlagName } from "@/config/flags";
 import { isEnabled } from "../flags";
@@ -37,8 +38,10 @@ export function createBffHandler<Input, Output>(options: {
       if (options.permission) await (dependencies.assertPermission ?? assertPermission)(options.permission);
       let input: Input | undefined;
       if (options.input) {
+        // GET reads its input from the query string (same schema as the page's searchParams); others from the JSON body.
         let body: unknown;
-        try {
+        if (request.method === "GET") body = toRawSearchParams(new URL(request.url).searchParams);
+        else try {
           body = await readBodyJson(new Response(request.body, { headers: request.headers }), 16_384);
         } catch { throw new HttpError(400, "invalid_input"); }
         const parsed = options.input.safeParse(body);

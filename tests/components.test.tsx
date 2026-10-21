@@ -18,6 +18,7 @@ import ErrorPage from "@/app/error";
 import { QueryProvider } from "@/providers/query-provider";
 import { createQueryClient } from "@/lib/query/client";
 import type { ExampleResult } from "@/lib/validation/example";
+import { LoadMore } from "@/components/list/load-more";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/backoffice/users" }));
 afterEach(cleanup);
@@ -142,5 +143,25 @@ describe("own components and integration with Ginga UI", () => {
     first.setQueryData(["private"], "first-user");
     expect(second.getQueryData(["private"])).toBeUndefined();
     first.clear(); second.clear();
+  });
+  it("loads the next page from the sentinel and the button, without auto-retrying after an error", async () => {
+    let fire = () => {};
+    const observe = vi.fn();
+    vi.stubGlobal("IntersectionObserver", class { constructor(callback: IntersectionObserverCallback) { fire = () => callback([{ isIntersecting: true } as IntersectionObserverEntry], this as never); } observe = observe; disconnect() {} });
+    const onLoadMore = vi.fn();
+    const props = { loaded: 10, total: 25, hasNextPage: true, isFetchingNextPage: false, isError: false, onLoadMore };
+    const { rerender } = render(<LoadMore {...props} />);
+    fire();
+    await userEvent.click(screen.getByRole("button", { name: "Carregar mais" }));
+    expect(onLoadMore).toHaveBeenCalledTimes(2);
+    expect(screen.getByText("10 de 25 carregados")).toBeInTheDocument();
+    observe.mockClear();
+    rerender(<NextIntlClientProvider locale="pt-BR" messages={catalogs["pt-BR"]} timeZone="UTC"><LoadMore {...props} isError /></NextIntlClientProvider>);
+    expect(observe).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toHaveTextContent("Não foi possível carregar mais itens.");
+    expect(screen.getByRole("button", { name: "Tentar novamente" })).toBeEnabled();
+    rerender(<NextIntlClientProvider locale="pt-BR" messages={catalogs["pt-BR"]} timeZone="UTC"><LoadMore {...props} loaded={25} hasNextPage={false} /></NextIntlClientProvider>);
+    expect(screen.getByText("Fim da lista")).toBeInTheDocument();
+    vi.unstubAllGlobals();
   });
 });

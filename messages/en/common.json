@@ -30,7 +30,13 @@
     "perPage": "Items per page",
     "range": "{from}–{to} of {total}",
     "selected": "{count} selected",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "loadMore": "Load more",
+    "loadingMore": "Loading…",
+    "loadError": "Could not load more items.",
+    "retry": "Try again",
+    "end": "End of list",
+    "loaded": "{count} of {total} loaded"
   },
   "forbidden": {
     "title": "Access denied",

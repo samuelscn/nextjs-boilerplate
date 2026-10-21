@@ -101,6 +101,11 @@
       },
       "saved": "Role salva.",
       "deleted": "Role excluída."
+    },
+    "list": {
+      "error": "Não foi possível carregar a lista.",
+      "retry": "Tentar novamente",
+      "loading": "Carregando usuários"
     }
   },
   "mobileDescription": "Exibe o menu lateral de navegação.",

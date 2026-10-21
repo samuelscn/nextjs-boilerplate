@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { patchSearchParams, pageRange } from "@/lib/list/params";
+import { patchSearchParams, pageRange, toRawSearchParams, toSearchParams } from "@/lib/list/params";
+import { usersQuerySchema } from "@/lib/validation/users";
 
 describe("patchSearchParams", () => {
   it("replaces multi-value filters, drops empty values and resets page", () => {
@@ -23,3 +24,17 @@ describe("pageRange", () => {
   ])("page %i of %i", (page, count, expected) => expect(pageRange(page, count)).toEqual(expected));
 });
 
+
+describe("query round trip for GET BFF routes", () => {
+  it("serializes a parsed query and parses it back with the page schema", () => {
+    const role = ["0b6f1d1e-3c55-4b8e-9d55-2f4c6a1e7b10", "7c1f0e2a-5b3d-4f6e-8a9b-1c2d3e4f5a6b"];
+    const query = usersQuerySchema.parse({ q: "ana", role, status: "active", pageSize: "20" });
+    const params = toSearchParams({ ...query, page: 3 });
+    expect(params.getAll("role")).toEqual(role);
+    expect(params.has("q") && params.get("page")).toBe("3");
+    expect(usersQuerySchema.parse(toRawSearchParams(params))).toEqual({ ...query, page: 3 });
+  });
+  it("keeps single values as strings and repeated keys as arrays", () => {
+    expect(toRawSearchParams(new URLSearchParams("q=a&status=active&status=invited"))).toEqual({ q: "a", status: ["active", "invited"] });
+  });
+});

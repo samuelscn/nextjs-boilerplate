@@ -30,7 +30,13 @@
     "perPage": "Itens por página",
     "range": "{from}–{to} de {total}",
     "selected": "{count} selecionados",
-    "clearFilters": "Limpar filtros"
+    "clearFilters": "Limpar filtros",
+    "loadMore": "Carregar mais",
+    "loadingMore": "Carregando…",
+    "loadError": "Não foi possível carregar mais itens.",
+    "retry": "Tentar novamente",
+    "end": "Fim da lista",
+    "loaded": "{count} de {total} carregados"
   },
   "forbidden": {
     "title": "Acesso negado",

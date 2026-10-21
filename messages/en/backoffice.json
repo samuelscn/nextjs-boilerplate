@@ -101,6 +101,11 @@
       },
       "saved": "Role saved.",
       "deleted": "Role deleted."
+    },
+    "list": {
+      "error": "Could not load the list.",
+      "retry": "Try again",
+      "loading": "Loading users"
     }
   },
   "mobileDescription": "Shows the side navigation menu.",

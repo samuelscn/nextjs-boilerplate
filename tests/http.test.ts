@@ -86,6 +86,16 @@ describe("HTTP and BFF security", () => {
     expect((await handler(req('{"label":"valid"}'))).status).toBe(401);
     expect(execute).toHaveBeenCalledOnce();
   });
+  it("reads GET input from the query string without a same-origin header", async () => {
+    const query = z.object({ q: z.string(), status: z.array(z.string()) });
+    const execute = vi.fn(async (input?: z.infer<typeof query>) => ({ label: input!.q + ":" + input!.status.join() }));
+    const dependencies = { getEnv: () => authEnv(), getSession: vi.fn(async () => ({ user: { id: "subject" }, expiresAt: Date.now() + 60_000 })) };
+    const handler = createBffHandler({ method: "GET", input: query, output: schema, execute }, dependencies);
+    const response = await handler(new Request("https://app.test/api/example?q=ana&status=a&status=b"));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ label: "ana:a,b" });
+    expect((await handler(new Request("https://app.test/api/example?status=a"))).status).toBe(400);
+  });
   it("answers 404 for operations behind a disabled flag, before any other check", async () => {
     const execute = vi.fn(async () => ({ label: "ok" }));
     const dependencies = { getEnv: () => authEnv(), getSession: vi.fn(async () => null), isEnabled: vi.fn(async () => false) };

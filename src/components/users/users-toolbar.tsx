@@ -17,7 +17,7 @@ export function UsersToolbar({ query, roles }: { query: UsersQuery; roles: Role[
   const { update, clear, pending } = useListParams();
   const filtered = Boolean(query.q || query.role.length || query.status.length);
   const summary = (count: number) => tCommon("selected", { count });
-  return <div role="search" aria-label={t("filters.label")} aria-busy={pending} className="flex flex-col gap-3 md:flex-row md:items-center">
+  return <div role="search" aria-label={t("filters.label")} aria-busy={pending} className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center">
     <SearchInput value={query.q} label={t("filters.search")} onSearch={q => update({ q })} />
     {roles.length > 0 && <MultiSelectFilter label={t("filters.role")} placeholder={t("filters.allRoles")} className="w-full md:w-48" summary={summary}
       options={roles.map(role => ({ value: role.id, label: roleLabel(role, tRoles) }))} value={query.role} onChange={role => update({ role })} />}

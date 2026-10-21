@@ -23,6 +23,22 @@ export const listParams = { q: searchParam, page: pageParam, pageSize: pageSizeP
 
 export type ParamValue = string | number | readonly (string | number)[] | null | undefined;
 
+// Same shape Next gives to `searchParams`, so one Zod query schema serves pages and GET BFF routes.
+export function toRawSearchParams(params: URLSearchParams): RawSearchParams {
+  // Null prototype: keys come from the request, so `__proto__` must stay data.
+  const raw: Record<string, string | string[]> = Object.create(null);
+  for (const key of new Set(params.keys())) {
+    const values = params.getAll(key);
+    raw[key] = values.length > 1 ? values : values[0]!;
+  }
+  return raw;
+}
+
+// Serializes a parsed query back to URLSearchParams for a GET BFF call (repeats multi-value keys).
+export function toSearchParams(query: Record<string, ParamValue>): URLSearchParams {
+  return patchSearchParams(new URLSearchParams(), query);
+}
+
 // Applies a patch to existing params. Empty values remove the key; page resets unless set explicitly.
 export function patchSearchParams(current: URLSearchParams, patch: Record<string, ParamValue>, defaults: Record<string, ParamValue> = {}) {
   const next = new URLSearchParams(current);
