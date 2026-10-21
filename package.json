@@ -68,5 +68,10 @@
   },
   "lint-staged": {
     "*.{ts,tsx,mjs}": "eslint --max-warnings 0"
+  },
+  "overrides": {
+    "@next/eslint-plugin-next": {
+      "fast-glob": "npm:tinyglobby@0.2.17"
+    }
   }
 }
