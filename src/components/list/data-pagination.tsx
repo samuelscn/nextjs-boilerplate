@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ginga/ui";
-import { DEFAULT_PAGE_SIZE, PAGE_SIZES, pageRange, patchSearchParams } from "@/lib/list/params";
+import { DEFAULT_PAGE_SIZE, PAGE_SIZES, hrefWithParams, pageRange, patchSearchParams } from "@/lib/list/params";
 import { useListParams } from "@/hooks/use-list-params";
 
 // Page links are real URLs (?page=n) so they are crawlable, shareable and keep every other filter.
@@ -15,7 +15,7 @@ export function DataPagination({ page, pageSize, total }: { page: number; pageSi
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const href = (target: number) => {
     const next = patchSearchParams(new URLSearchParams(searchParams), { page: target === 1 ? undefined : target });
-    return next.size ? pathname + "?" + next : pathname;
+    return hrefWithParams(pathname, next);
   };
   const from = total ? (page - 1) * pageSize + 1 : 0, to = Math.min(page * pageSize, total);
   const sizes = Object.fromEntries(PAGE_SIZES.map(size => [String(size), String(size)]));

@@ -5,7 +5,7 @@ Stable + supported + security patched + tested, não atualização automática p
 | Dependência | Versão | Uso/motivo |
 | --- | --- | --- |
 | Node | 24.21.0 LTS | Runtime suportado; .nvmrc, engines, Docker e CI coerentes |
-| Next | 16.3.5 | Runtime App Router/BFF; Active LTS com patches atuais |
+| Next | 16.3.8 | Runtime App Router/BFF; Active LTS com patches atuais |
 | React / DOM | 19.3.0 | Runtime, peer exigida pelo Ginga UI 0.1.7 |
 | @ginga/ui → @ginga-software/ui | 0.1.7 | Runtime, DS oficial; tarball local autorizado |
 | openid-client | 6.8.8 | Runtime, cliente OAuth/OIDC certificado, PKCE/nonce/state/refresh |
@@ -14,10 +14,11 @@ Stable + supported + security patched + tested, não atualização automática p
 | React Hook Form | 7.88.0 | Runtime opcional de forms, estado/validação do formulário |
 | @hookform/resolvers | 5.9.1 | Runtime forms, integração RHF/Zod |
 | @tanstack/react-query | 5.102.8 | Runtime opcional, estado assíncrono interativo |
+| @sentry/nextjs | 11.4.0 | Runtime, rastreamento de erros só no servidor (`src/server/error-tracking.ts`), desligado sem `SENTRY_DSN` |
 | server-only | 0.0.1 | Marcador oficial de fronteira para o compilador Next |
 | TypeScript | 6.0.3 | Dev, strict; compatível com typescript-eslint <6.1 |
 | ESLint | 10.10.0 | Dev, linha mantida |
-| @next/eslint-plugin-next | 16.3.5 | Dev, regras oficiais Next |
+| @next/eslint-plugin-next | 16.3.8 | Dev, regras oficiais Next |
 | typescript-eslint / react-hooks | 8.70.0 / 7.1.1 | Dev, regras TypeScript e hooks |
 | @tanstack/eslint-plugin-query | 5.102.8 | Dev opcional, regras oficiais Query |
 | Vitest / jsdom | 4.1.11 / 29.1.1 | Dev, testes unitários/integração/componentes |
@@ -35,7 +36,7 @@ ESLint 9 chegou a EOL; eslint-config-next trazia um eslint-plugin-react incompat
 
 ## Escolha das versões
 
-Next 16.2.6 recebido estava vulnerável. O [release de segurança de agosto](https://nextjs.org/blog/august-2026-security-release) corrige problemas críticos a partir de 16.3.3. [16.3.5](https://github.com/vercel/next.js/releases/tag/v16.3.5) adiciona correção de nonce para loading/template e standalone; são motivos concretos para o patch, apesar de recente. [Política de suporte Next](https://nextjs.org/support-policy).
+Next 16.2.6 recebido estava vulnerável. O [release de segurança de agosto](https://nextjs.org/blog/august-2026-security-release) corrige problemas críticos a partir de 16.3.3. [16.3.5](https://github.com/vercel/next.js/releases/tag/v16.3.5) adiciona correção de nonce para loading/template e standalone; são motivos concretos para o patch, apesar de recente. 16.3.8 corrige os advisories de setembro (RCE em `next/og`, SSRF no Image Optimization, cache poisoning em SSG/ISR), sem sair da linha 16.3. [Política de suporte Next](https://nextjs.org/support-policy).
 
 React 19.3.0 é estável e necessário ao DS 0.1.7, não uma atualização por número. [Versões React](https://react.dev/versions) e [advisories React](https://github.com/react/react/security/advisories). Node 24 é Active LTS segundo [calendário oficial](https://github.com/nodejs/Release). [Suporte ESLint](https://eslint.org/version-support/).
 
@@ -45,7 +46,7 @@ O cliente escolhido oferece as funções necessárias sem se tornar IdP: [openid
 
 Árvore recebida: 15 vulnerabilidades (1 crítica, 11 altas, 1 moderada, 2 baixas). Após remoção do legado e atualização: **0 vulnerabilidades** no audit completo e no audit runtime durante a implementação. O resultado é pontual, não garantia futura.
 
-CI falha em high/critical runtime; o job separado também examina dev dependencies e falha em high/critical da árvore completa. Uma vulnerabilidade de dev deve ser avaliada pelo impacto no build, CI, uso local e cadeia de publicação. Não ignorar ou fazer audit --force. Se precisar de exceção, registrar advisory/CVE, caminho afetado, impacto, evidência de não exploração, mitigação, responsável e data limite de revisão. Não há exceções nesta entrega.
+CI falha em high/critical runtime; o job separado também examina dev dependencies e falha em high/critical da árvore completa. Uma vulnerabilidade de dev deve ser avaliada pelo impacto no build, CI, uso local e cadeia de publicação. Não ignorar ou fazer audit --force. Se precisar de exceção, registrar advisory/CVE, caminho afetado, impacto, evidência de não exploração, mitigação, responsável e data limite de revisão. Exceção vigente (2026-10-21): `braces` <=3.0.3 ([GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), DoS por padrões aninhados), via `@next/eslint-plugin-next` → `fast-glob` → `micromatch`. Sem versão corrigida publicada; só dev (lint local/CI sobre globs do próprio repo, sem entrada externa), fora do bundle e do runtime (`npm audit --omit=dev` limpo). Mitigação: nenhuma entrada não confiável chega ao lint. Responsável: mantenedor do boilerplate; revisar quando `braces` publicar correção ou até 2026-11-21. Enquanto isso, o job de audit completo do `security.yml` fica vermelho.
 
 O tarball UI local é imutável e possui integridade no lock; npm audit/Dependabot não consultam uma publicação privada para atualizar esse arquivo. A atualização do DS é manual até migrar ao registry. Não alegamos verificar correspondência binária com a publicação GitHub Packages, que respondeu 401.
 

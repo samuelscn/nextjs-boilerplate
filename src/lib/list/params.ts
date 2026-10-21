@@ -39,6 +39,12 @@ export function toSearchParams(query: Record<string, ParamValue>): URLSearchPara
   return patchSearchParams(new URLSearchParams(), query);
 }
 
+// Path plus query, without a dangling "?". toString(), not URLSearchParams.size: size needs Safari 17.
+export function hrefWithParams(pathname: string, params: URLSearchParams) {
+  const search = params.toString();
+  return search ? pathname + "?" + search : pathname;
+}
+
 // Applies a patch to existing params. Empty values remove the key; page resets unless set explicitly.
 export function patchSearchParams(current: URLSearchParams, patch: Record<string, ParamValue>, defaults: Record<string, ParamValue> = {}) {
   const next = new URLSearchParams(current);

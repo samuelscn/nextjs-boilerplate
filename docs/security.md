@@ -56,6 +56,8 @@ I18n valida locales antes de carregar catálogos por imports explícitos. Troca 
 
 Desabilitamos logging de URLs de entrada do Next. Configure também ingress/APM para não armazenar query de /auth/callback, headers sensíveis nem bodies. Não habilitar debug HTTP de bibliotecas OIDC em produção. Secrets ficam no ambiente do servidor ou secret manager; .env está ignorado e excluído do Docker context. Nenhuma env deste boilerplate tem prefixo NEXT_PUBLIC_.
 
+Rastreamento de erros (Sentry, opcional por `SENTRY_DSN`) roda só no servidor, sem tracing nem breadcrumbs; `dataCollection` desliga headers, cookies, query, bodies e usuário, e `scrubEvent` remove esses campos de novo antes do envio. Cada evento leva stack, rota sem query e o `requestId` dos logs.
+
 Env é validado em instrumentation no startup Node e ao acessar configuração. Erros só exibem nomes de campos, sem valores ou mensagens que os incluam. HTTPS é obrigatório em produção. Health não consulta Identity nem API e não expõe configuração; é liveness, não readiness completa.
 
 ## Dependências e GitHub

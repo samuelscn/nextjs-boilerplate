@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { patchSearchParams, pageRange, toRawSearchParams, toSearchParams } from "@/lib/list/params";
+import { hrefWithParams, patchSearchParams, pageRange, toRawSearchParams, toSearchParams } from "@/lib/list/params";
 import { usersQuerySchema } from "@/lib/validation/users";
 
 describe("patchSearchParams", () => {
@@ -36,5 +36,14 @@ describe("query round trip for GET BFF routes", () => {
   });
   it("keeps single values as strings and repeated keys as arrays", () => {
     expect(toRawSearchParams(new URLSearchParams("q=a&status=active&status=invited"))).toEqual({ q: "a", status: ["active", "invited"] });
+  });
+});
+
+describe("hrefWithParams", () => {
+  it("keeps filters even where URLSearchParams.size is missing (Safari < 17)", () => {
+    const params = new URLSearchParams("status=active&page=2");
+    Object.defineProperty(params, "size", { value: undefined });
+    expect(hrefWithParams("/backoffice/users", params)).toBe("/backoffice/users?status=active&page=2");
+    expect(hrefWithParams("/backoffice/users", new URLSearchParams())).toBe("/backoffice/users");
   });
 });

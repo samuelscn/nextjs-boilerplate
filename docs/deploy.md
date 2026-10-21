@@ -30,7 +30,8 @@ O plano **Hobby** proíbe uso comercial; migre o time para o Pro antes de um pro
 6. **Variáveis** (tabela abaixo): ambiente *Preview* restrito à branch `main` para homolog e
    *Production* para produção. Nunca reutilize `SESSION_SECRETS` ou client secret entre
    ambientes.
-7. **GitHub**: secret `VERCEL_TOKEN` (*Account Settings → Tokens*) e variáveis
+7. **Sentry** (recomendado): projeto Next.js no Sentry; só erros do servidor (render, route handlers, server actions, proxy), sem dados de requisição. Erros do navegador ainda não são enviados (a CSP só permite `connect-src 'self'`).
+8. **GitHub**: secret `VERCEL_TOKEN` (*Account Settings → Tokens*) e variáveis
    `VERCEL_ORG_ID` e `VERCEL_PROJECT_ID` (rode `npx vercel link` localmente e copie de
    `.vercel/project.json`, que não é versionado). Opcional: aprovação manual no
    environment `production`.
@@ -49,6 +50,7 @@ O plano **Hobby** proíbe uso comercial; migre o time para o Pro antes de um pro
 | `SESSION_SECRETS` | app, backoffice | `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` |
 | `API_MODE` / `PRODUCT_API_URL` | backoffice (e app com BFF) | `live` / URL da Product API do ambiente |
 | `FEATURE_FLAGS` | opcional | ver `src/config/flags.ts` |
+| `SENTRY_DSN` / `SENTRY_ENVIRONMENT` | recomendado | DSN do projeto Sentry do front / `homolog` ou `production`; sem DSN, desligado. Release = commit da Vercel |
 
 Não defina `OIDC_ALLOW_HTTP` nem `API_MOCK_PERMISSIONS` fora do desenvolvimento.
 

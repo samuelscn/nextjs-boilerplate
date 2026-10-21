@@ -14,6 +14,12 @@ const core = z.object({
   I18N_DEFAULT_LOCALE: z.enum(supportedLocales).default(defaultLocale),
   I18N_URL_STRATEGY: z.enum(["public-prefix", "cookie"]).default(template.i18n.urlStrategy.public as "public-prefix" | "cookie"),
   FEATURE_FLAGS: z.string().max(4096).optional(),
+  // Server-side error tracking (src/server/error-tracking.ts); unset = disabled.
+  SENTRY_DSN: z.url().optional(),
+  SENTRY_ENVIRONMENT: z.string().trim().min(1).max(64).optional(),
+  SENTRY_RELEASE: z.string().trim().min(1).max(200).optional(),
+  // Injected by Vercel; default Sentry release.
+  VERCEL_GIT_COMMIT_SHA: z.string().trim().min(1).max(64).optional(),
 });
 const auth = z.object({
   OIDC_ISSUER: z.string().min(1),

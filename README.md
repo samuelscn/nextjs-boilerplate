@@ -28,7 +28,7 @@ Ajuste APP_KIND em .env.local. Auth/backoffice exigem registro de application no
 
 ## Stack e arquitetura
 
-Next 16.3.5, React 19.3.0, TypeScript strict, Ginga UI 0.1.7, Zod, RHF e TanStack Query. Versões críticas exatas, npm lockfile e política stable/supported/patched/tested. [Decisões e versões](docs/dependencies.md).
+Next 16.3.8, React 19.3.0, TypeScript strict, Ginga UI 0.1.7, Zod, RHF e TanStack Query. Versões críticas exatas, npm lockfile e política stable/supported/patched/tested. [Decisões e versões](docs/dependencies.md).
 
 Browser → Next → Product API. Server Components por padrão; browser usa BFF de mesma origem. Ginga Identity autentica por redirect OIDC Authorization Code + PKCE; não recebe senha no Next. A sessão fica selada (JWE) num cookie HttpOnly que o navegador não lê; sem store no servidor. Product API decide autorização. [Arquitetura](docs/architecture.md) · [Autenticação](docs/authentication.md).
 
