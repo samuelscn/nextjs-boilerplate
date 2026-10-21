@@ -72,7 +72,7 @@ export function RoleFormDialog({ role, catalog, open, onOpenChange }: { role?: R
         <fieldset className="grid gap-3" aria-describedby={errors.permissions ? `${id}-permissions-error` : undefined} aria-invalid={Boolean(errors.permissions)}>
           <legend className="mb-1 text-sm font-medium">{tForm("permissions")}</legend>
           <Controller control={control} name="permissions" render={({ field: permissions }) =>
-            <div className="grid gap-3 sm:grid-cols-2">{catalog.groups.map(group => <div key={group.resource} role="group" aria-labelledby={`${id}-${group.resource}`} className="grid gap-2 rounded-lg border p-3">
+            <div className="grid gap-3 sm:grid-cols-2">{catalog.groups.map(group => <div key={group.resource} role="group" aria-labelledby={`${id}-${group.resource}`} className="grid content-start gap-2 rounded-lg border p-3">
               <p id={`${id}-${group.resource}`} className="text-sm font-medium">{resourceLabel(group.resource, tPermissions)}</p>
               {group.permissions.map(permission => <div key={permission} className="flex items-center gap-2">
                 <Checkbox id={`${id}-${permission}`} disabled={save.isPending} checked={permissions.value.includes(permission)}

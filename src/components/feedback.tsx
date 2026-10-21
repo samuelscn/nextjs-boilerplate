@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ShieldXIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle, buttonVariants, Card, CardContent, Skeleton } from "@ginga/ui";
 import { localizedError, errorAction } from "@/i18n/errors";
-import { normalizeFrontendError } from "@/lib/http/api-error";
+import { ApiError, normalizeFrontendError } from "@/lib/http/api-error";
 
 export function EmptyState({ title, description }: { title?: string; description?: string }) {
   const t = useTranslations("common");
@@ -12,7 +12,11 @@ export function EmptyState({ title, description }: { title?: string; description
 export function ErrorState({ title, description, error }: { title?: string; description?: string; error?: unknown }) {
   const t = useTranslations();
   const normalized = normalizeFrontendError(error);
-  return <Alert variant="destructive"><AlertTitle>{title ?? t("common.errorTitle")}</AlertTitle>
+  // Business rule failures (4xx) are expected: the translated message speaks for itself, so the
+  // generic "something went wrong" title is only for technical failures. The reference stays for support.
+  const technical = !(normalized instanceof ApiError && normalized.statusCode < 500);
+  const heading = title ?? (technical ? t("common.errorTitle") : undefined);
+  return <Alert variant="destructive">{heading && <AlertTitle>{heading}</AlertTitle>}
     <AlertDescription>{description ?? localizedError(normalized, t)}
       {normalized.requestId && <p>{t("common.reference", { id: normalized.requestId })}</p>}
       {errorAction(normalized) === "login" && <a href="/auth/login">{t("common.actions.signIn")}</a>}

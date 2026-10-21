@@ -44,6 +44,7 @@ describe("own components and integration with Ginga UI", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(catalogs[locale].errors.AUTHORIZATION_FORBIDDEN);
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
     expect(screen.getByText(/req_SUPPORT/u)).toBeVisible();
+    expect(screen.queryByText(catalogs[locale].common.errorTitle)).not.toBeInTheDocument();
     view.unmount();
     render(<ErrorState error={failure(401, "AUTHENTICATION_REQUIRED")} />, locale);
     expect(screen.getByRole("link")).toHaveAttribute("href", "/auth/login");
@@ -51,6 +52,7 @@ describe("own components and integration with Ginga UI", () => {
   it("renders a localized network fallback without technical error text", () => {
     render(<ErrorState error={new NetworkError()} />, "en");
     expect(screen.getByRole("alert")).toHaveTextContent(catalogs.en.errors.NETWORK_ERROR);
+    expect(screen.getByText(catalogs.en.common.errorTitle)).toBeVisible();
   });
   it("validates, submits and handles server field errors accessibly", async () => {
     const user = userEvent.setup();

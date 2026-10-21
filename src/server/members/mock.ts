@@ -118,5 +118,7 @@ export function createMockMembersGateway(state: State = seed()): MembersGateway 
     },
   };
 }
-const runtime = globalThis as typeof globalThis & { gingaMembersMock?: MembersGateway };
-export const mockMembersGateway = () => runtime.gingaMembersMock ??= createMockMembersGateway();
+// Only the data survives dev reloads. Caching the gateway itself would keep closures over a stale
+// HttpError class, so `instanceof ApiError` fails after HMR and every domain error becomes a 500.
+const runtime = globalThis as typeof globalThis & { gingaMembersMockState?: State };
+export const mockMembersGateway = () => createMockMembersGateway(runtime.gingaMembersMockState ??= seed());
