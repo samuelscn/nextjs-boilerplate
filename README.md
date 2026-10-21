@@ -66,6 +66,7 @@ RHF + Zod + fields do Ginga UI; exemplo neutro completo/testado em src/component
 | npm run test:modes | Build separado dos três perfis + secret canary check |
 | npm run check | Lint, tipos, testes e build |
 | npm run security:check | Invariantes, bundle leak check e audit runtime |
+| npm run dev:login | Abre um navegador para você entrar no Identity e salva a sessão do MCP `playwright-session` |
 | npm run api:sync | Copia o contrato da Product API (OpenAPI + fixtures de erro) e regenera os tipos |
 | npm run api:check | Falha se os tipos gerados estiverem defasados em relação a contracts/ |
 

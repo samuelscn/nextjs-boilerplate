@@ -23,7 +23,8 @@
     "test:e2e": "playwright test",
     "test:modes": "node scripts/test-modes.mjs",
     "check": "npm run lint && npm run typecheck && npm test && npm run build",
-    "security:check": "node scripts/security-check.mjs && npm audit --omit=dev --audit-level=high"
+    "security:check": "node scripts/security-check.mjs && npm audit --omit=dev --audit-level=high",
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@ginga/ui": "file:vendor/ginga-software-ui-0.1.7.tgz",
@@ -41,6 +42,8 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
+    "@commitlint/cli": "21.2.3",
+    "@commitlint/config-conventional": "21.2.3",
     "@eslint/js": "10.0.1",
     "@next/eslint-plugin-next": "16.3.5",
     "@playwright/test": "1.63.0",
@@ -54,10 +57,15 @@
     "@types/react-dom": "19.3.0",
     "eslint": "10.10.0",
     "eslint-plugin-react-hooks": "7.1.1",
+    "husky": "9.1.7",
     "jsdom": "29.1.1",
+    "lint-staged": "17.6.0",
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",
     "typescript-eslint": "8.70.0",
     "vitest": "4.1.11"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,mjs}": "eslint --max-warnings 0"
   }
 }
