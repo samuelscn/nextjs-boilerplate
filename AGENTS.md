@@ -10,6 +10,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Ginga invariants
 
+Comece por docs/ai-playbook.md (preciso de X → vá em Y) e use as skills de .claude/skills. O foco do produto é regra de negócio: auth, erros, i18n, listas, permissões, flags e mock já existem.
+
+
 - Este repositório é um template, sem domínio de produto. Use npm e preserve package-lock.json.
 - Consulte template.config.json e docs/capabilities.md antes de alterar composição.
 - Server Components são o padrão; providers clientes devem estar no menor subtree possível.
