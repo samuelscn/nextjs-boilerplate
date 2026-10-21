@@ -2,5 +2,84 @@
   "title": "Backoffice",
   "internal": "Internal application",
   "overview": "Overview",
-  "description": "Initial backoffice structure."
+  "description": "Initial backoffice structure.",
+  "navGroup": "Management",
+  "openMenu": "Toggle sidebar",
+  "account": "My account",
+  "language": "Language",
+  "users": {
+    "title": "Users",
+    "description": "Manage who can access the application and what each person can do.",
+    "tabs": {
+      "users": "Users",
+      "roles": "Roles"
+    },
+    "invite": {
+      "action": "Invite user",
+      "title": "Invite user",
+      "description": "The person will receive an invitation to access the application with the selected role.",
+      "email": "Email",
+      "role": "Role",
+      "rolePlaceholder": "Select a role",
+      "submit": "Send invitation",
+      "sent": "Invitation sent."
+    },
+    "filters": {
+      "label": "Filter users",
+      "search": "Search by name or email",
+      "role": "Role",
+      "allRoles": "All roles",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "clear": "Clear filters"
+    },
+    "table": {
+      "label": "User list",
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "lastAccess": "Last access",
+      "actions": "Actions",
+      "pending": "Invitation pending",
+      "never": "Never signed in"
+    },
+    "status": {
+      "active": "Active",
+      "invited": "Invited",
+      "suspended": "Suspended"
+    },
+    "actions": {
+      "open": "Actions for {user}",
+      "changeRole": "Change role",
+      "suspend": "Suspend access",
+      "reactivate": "Reactivate access"
+    },
+    "empty": {
+      "title": "No users found",
+      "description": "Adjust the filters or invite someone new."
+    },
+    "roles": {
+      "admin": {
+        "name": "Administrator",
+        "description": "Full access, including user management and settings."
+      },
+      "manager": {
+        "name": "Manager",
+        "description": "Manages teams and day-to-day data, without changing settings."
+      },
+      "support": {
+        "name": "Support",
+        "description": "Handles requests and looks up customer records."
+      },
+      "viewer": {
+        "name": "Viewer",
+        "description": "Read-only access."
+      }
+    },
+    "rolesTab": {
+      "permissions": "{count, plural, one {# permission} other {# permissions}}",
+      "users": "{count, plural, one {# user} other {# users}}"
+    }
+  },
+  "mobileDescription": "Shows the side navigation menu."
 }

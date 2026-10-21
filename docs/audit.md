@@ -27,7 +27,7 @@ Auditoria NPM do lock original: **15 vulnerabilidades** (1 crítica, 11 altas, 1
 
 | Gate executado | Resultado |
 | --- | --- |
-| npm ci | Instalação reproduzível, incluindo UI 0.1.4 local |
+| npm ci | Instalação reproduzível, incluindo UI 0.1.7 local |
 | npm run lint / npm run typecheck | Aprovados, sem warnings de lint |
 | npm test | 83 testes em 6 arquivos aprovados |
 | npm run test:modes | Builds separados de public, app e backoffice aprovados |

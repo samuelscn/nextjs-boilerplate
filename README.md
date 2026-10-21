@@ -14,7 +14,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Abra http://localhost:3000. O perfil padrão `public` funciona sem Identity ou Product API. Ginga UI 0.1.4 é consumido do tarball oficial local autorizado em vendor; não depende de outro checkout nem de credenciais privadas para instalar. [Proveniência e migração para registry](vendor/README.md).
+Abra http://localhost:3000. O perfil padrão `public` funciona sem Identity ou Product API. Ginga UI 0.1.7 é consumido do tarball oficial local autorizado em vendor; não depende de outro checkout nem de credenciais privadas para instalar. [Proveniência e migração para registry](vendor/README.md).
 
 ## Perfis
 
@@ -28,7 +28,7 @@ Ajuste APP_KIND em .env.local. Auth/backoffice exigem registro de application no
 
 ## Stack e arquitetura
 
-Next 16.3.5, React 19.3.0, TypeScript strict, Ginga UI 0.1.4, Zod, RHF e TanStack Query. Versões críticas exatas, npm lockfile e política stable/supported/patched/tested. [Decisões e versões](docs/dependencies.md).
+Next 16.3.5, React 19.3.0, TypeScript strict, Ginga UI 0.1.7, Zod, RHF e TanStack Query. Versões críticas exatas, npm lockfile e política stable/supported/patched/tested. [Decisões e versões](docs/dependencies.md).
 
 Browser → Next → Product API. Server Components por padrão; browser usa BFF de mesma origem. Ginga Identity autentica por redirect OIDC Authorization Code + PKCE; não recebe senha no Next. Cookie opaco HttpOnly identifica sessão local; access/refresh ficam somente em memória server-side. Product API decide autorização. [Arquitetura](docs/architecture.md) · [Autenticação](docs/authentication.md).
 
@@ -40,7 +40,7 @@ Browser → Next → Product API. Server Components por padrão; browser usa BFF
 import { Button, Input, Card } from "@ginga/ui";
 ```
 
-O import resolve o pacote real @ginga-software/ui 0.1.4. CSS do DS é importado uma vez por globals.css. A aplicação também compila suas próprias utilities Tailwind v4 pelo plugin em postcss.config.mjs, usando as classes de src. O CSS da lib já inclui preflight e estilos dos componentes: não é necessário escanear o pacote nem importar preflight novamente. Não precisa de shadcn ou tailwind.config.
+O import resolve o pacote real @ginga-software/ui 0.1.7. CSS do DS é importado uma vez por globals.css. A aplicação também compila suas próprias utilities Tailwind v4 pelo plugin em postcss.config.mjs, usando as classes de src. O CSS da lib já inclui preflight e estilos dos componentes: não é necessário escanear o pacote nem importar preflight novamente. Não precisa de shadcn ou tailwind.config.
 
 Use classes completas em className, por exemplo `flex flex-wrap items-center gap-3 md:gap-6`. globals.css conecta os tokens via `@theme inline`: `bg-primary`, `text-primary-foreground`, `border-border` e variantes seguem os mesmos valores dos componentes da lib. Estilos globais ficam nas layers base/components para permitir overrides por utilities. A variante `dark:` acompanha `.dark` em html. Evite montar classes dinamicamente como `bg-${color}`; use um mapa com strings completas.
 

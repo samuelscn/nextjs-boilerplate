@@ -15,8 +15,10 @@ import { QueryProvider } from "@/providers/query-provider";
 import { createQueryClient } from "@/lib/query/client";
 import type { ExampleResult } from "@/lib/validation/example";
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/backoffice" }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/backoffice/users" }));
 afterEach(cleanup);
+// jsdom has no matchMedia, which the DS Sidebar uses to detect mobile.
+Object.defineProperty(window, "matchMedia", { writable: true, value: (query: string) => ({ matches: false, media: query, addEventListener() {}, removeEventListener() {} }) });
 const render = (ui: React.ReactNode, locale: Locale = "pt-BR") => renderUI(<NextIntlClientProvider locale={locale} messages={catalogs[locale]} timeZone="UTC">{ui}</NextIntlClientProvider>);
 describe("own components and integration with Ginga UI", () => {
   it("validates and renders server errors in English", async () => {
@@ -94,11 +96,13 @@ describe("own components and integration with Ginga UI", () => {
     expect(retry).toHaveBeenCalledOnce();
     expect(screen.queryByText("private detail")).not.toBeInTheDocument();
   });
-  it("provides semantic backoffice navigation, active link and logout", () => {
+  it("provides semantic backoffice navigation, active link, language and logout", async () => {
     render(<QueryProvider><BackofficeShell><h1>Visão geral</h1></BackofficeShell></QueryProvider>);
     expect(screen.getByRole("navigation", { name: "Navegação principal" })).toBeVisible();
-    expect(screen.getByRole("link", { name: "Visão geral" })).toHaveAttribute("aria-current", "page");
-    expect(screen.getByRole("button", { name: "Sair" }).closest("form")).toHaveAttribute("method", "post");
+    expect(screen.getByRole("link", { name: "Usuários" })).toHaveAttribute("aria-current", "page");
+    await userEvent.click(screen.getByRole("button", { name: "Minha conta" }));
+    expect((await screen.findByRole("menuitem", { name: "Sair" })).closest("form")).toHaveAttribute("method", "post");
+    expect(screen.getByRole("menuitem", { name: "English" }).closest("form")).toHaveAttribute("action", "/api/locale");
     expect(screen.getByRole("main")).toContainElement(screen.getByRole("heading"));
   });
   it("never shares Query state between server factories", () => {

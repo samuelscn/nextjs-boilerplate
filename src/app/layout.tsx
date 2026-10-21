@@ -29,7 +29,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return <html lang={locale}><body>
     <a className="skip-link" href="#main-content">{t("skip")}</a>
     <IntlProvider locale={locale} messages={messages}>
-      <LocaleSwitcher returnTo={path} />{children}
+      {!/^\/backoffice(?:\/|$)/u.test(path) && <LocaleSwitcher returnTo={path} />}{children}
     </IntlProvider>
   </body></html>;
 }

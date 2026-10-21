@@ -6,8 +6,8 @@ Stable + supported + security patched + tested, não atualização automática p
 | --- | --- | --- |
 | Node | 24.21.0 LTS | Runtime suportado; .nvmrc, engines, Docker e CI coerentes |
 | Next | 16.3.5 | Runtime App Router/BFF; Active LTS com patches atuais |
-| React / DOM | 19.3.0 | Runtime, peer exigida pelo Ginga UI 0.1.4 |
-| @ginga/ui → @ginga-software/ui | 0.1.4 | Runtime, DS oficial; tarball local autorizado |
+| React / DOM | 19.3.0 | Runtime, peer exigida pelo Ginga UI 0.1.7 |
+| @ginga/ui → @ginga-software/ui | 0.1.7 | Runtime, DS oficial; tarball local autorizado |
 | openid-client | 6.8.8 | Runtime, cliente OAuth/OIDC certificado, PKCE/nonce/state/refresh |
 | jose | 6.2.12 | Runtime, verificar access JWT RS256/JWKS do contrato Ginga |
 | Zod | 4.6.5 | Runtime, env/input/output boundaries |
@@ -23,6 +23,7 @@ Stable + supported + security patched + tested, não atualização automática p
 | Vitest / jsdom | 4.1.11 / 29.1.1 | Dev, testes unitários/integração/componentes |
 | Testing Library React / user-event / jest-dom | 16.3.3 / 14.6.7 / 7.0.1 | Dev, interação e assertions de componentes |
 | Playwright | 1.63.0 | Dev, E2E em builds de produção com Chromium |
+| @playwright/mcp | 0.0.83 | Fora do lockfile (npx via .mcp.json), verificação visual por agentes em dev |
 | @types/node / react / react-dom | 24.13.4 / 19.3.0 / 19.3.0 | Dev, tipos do runtime adotado |
 
 Tailwind CSS e @tailwindcss/postcss 4.3.3 são devDependencies diretas para compilar as utilities da aplicação. O CSS dos componentes continua vindo pronto do DS, sem duplicar preflight. Não há Axios, Storybook, shadcn CLI, Redis, Redux/Zustand, libs de datas, analytics ou utilitários de domínio.
@@ -33,7 +34,7 @@ ESLint 9 chegou a EOL; eslint-config-next trazia um eslint-plugin-react incompat
 
 Next 16.2.6 recebido estava vulnerável. O [release de segurança de agosto](https://nextjs.org/blog/august-2026-security-release) corrige problemas críticos a partir de 16.3.3. [16.3.5](https://github.com/vercel/next.js/releases/tag/v16.3.5) adiciona correção de nonce para loading/template e standalone; são motivos concretos para o patch, apesar de recente. [Política de suporte Next](https://nextjs.org/support-policy).
 
-React 19.3.0 é estável e necessário ao DS 0.1.4, não uma atualização por número. [Versões React](https://react.dev/versions) e [advisories React](https://github.com/react/react/security/advisories). Node 24 é Active LTS segundo [calendário oficial](https://github.com/nodejs/Release). [Suporte ESLint](https://eslint.org/version-support/).
+React 19.3.0 é estável e necessário ao DS 0.1.7, não uma atualização por número. [Versões React](https://react.dev/versions) e [advisories React](https://github.com/react/react/security/advisories). Node 24 é Active LTS segundo [calendário oficial](https://github.com/nodejs/Release). [Suporte ESLint](https://eslint.org/version-support/).
 
 O cliente escolhido oferece as funções necessárias sem se tornar IdP: [openid-client](https://github.com/panva/openid-client), [segurança](https://github.com/panva/openid-client/security). Auth.js não foi necessário; Axios não oferece benefício ao fetch nativo. Se o store exigir escala, trocar o adapter/lock conforme a topologia; não substituir tokens server-side por cookies contendo tokens.
 

@@ -12,7 +12,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-O tarball oficial local Ginga UI 0.1.4 está incluído para reprodução. Não é necessário acesso ao GitHub Packages nesta configuração. Leia vendor/README.md antes de migrar a dependência para o registry.
+O tarball oficial local Ginga UI 0.1.7 está incluído para reprodução. Não é necessário acesso ao GitHub Packages nesta configuração. Leia vendor/README.md antes de migrar a dependência para o registry.
 
 ## Landing/site público
 

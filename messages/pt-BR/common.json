@@ -7,7 +7,8 @@
     "home": "Ir para o início",
     "signIn": "Entrar novamente",
     "signOut": "Sair",
-    "applyLanguage": "Aplicar idioma"
+    "applyLanguage": "Aplicar idioma",
+    "close": "Fechar"
   },
   "skip": "Pular para o conteúdo",
   "language": "Idioma",
@@ -19,5 +20,16 @@
   "errorTitle": "Algo deu errado",
   "notFoundTitle": "Página não encontrada",
   "reference": "Código de referência: {id}",
-  "metadataDescription": "Aplicação construída com a fundação Next.js da Ginga Software."
+  "metadataDescription": "Aplicação construída com a fundação Next.js da Ginga Software.",
+  "list": {
+    "pagination": "Paginação",
+    "previous": "Anterior",
+    "next": "Próxima",
+    "more": "Mais páginas",
+    "page": "Página {page}",
+    "perPage": "Itens por página",
+    "range": "{from}–{to} de {total}",
+    "selected": "{count} selecionados",
+    "clearFilters": "Limpar filtros"
+  }
 }

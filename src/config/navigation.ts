@@ -1,1 +1,1 @@
-export const navigation = [{ labelKey: "backoffice.overview", href: "/backoffice" }] as const;
+export const navigation = [{ labelKey: "backoffice.users.title", href: "/backoffice/users", icon: "users" }] as const;

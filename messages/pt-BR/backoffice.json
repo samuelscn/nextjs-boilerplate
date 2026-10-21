@@ -2,5 +2,84 @@
   "title": "Backoffice",
   "internal": "Aplicação interna",
   "overview": "Visão geral",
-  "description": "Estrutura inicial do backoffice."
+  "description": "Estrutura inicial do backoffice.",
+  "navGroup": "Gestão",
+  "openMenu": "Alternar menu lateral",
+  "account": "Minha conta",
+  "language": "Idioma",
+  "users": {
+    "title": "Usuários",
+    "description": "Gerencie quem acessa a aplicação e o que cada pessoa pode fazer.",
+    "tabs": {
+      "users": "Usuários",
+      "roles": "Roles"
+    },
+    "invite": {
+      "action": "Convidar usuário",
+      "title": "Convidar usuário",
+      "description": "A pessoa receberá um convite para acessar a aplicação com a role escolhida.",
+      "email": "E-mail",
+      "role": "Role",
+      "rolePlaceholder": "Selecione uma role",
+      "submit": "Enviar convite",
+      "sent": "Convite enviado."
+    },
+    "filters": {
+      "label": "Filtrar usuários",
+      "search": "Buscar por nome ou e-mail",
+      "role": "Role",
+      "allRoles": "Todas as roles",
+      "status": "Status",
+      "allStatuses": "Todos os status",
+      "clear": "Limpar filtros"
+    },
+    "table": {
+      "label": "Lista de usuários",
+      "user": "Usuário",
+      "role": "Role",
+      "status": "Status",
+      "lastAccess": "Último acesso",
+      "actions": "Ações",
+      "pending": "Convite pendente",
+      "never": "Nunca acessou"
+    },
+    "status": {
+      "active": "Ativo",
+      "invited": "Convidado",
+      "suspended": "Suspenso"
+    },
+    "actions": {
+      "open": "Ações para {user}",
+      "changeRole": "Alterar role",
+      "suspend": "Suspender acesso",
+      "reactivate": "Reativar acesso"
+    },
+    "empty": {
+      "title": "Nenhum usuário encontrado",
+      "description": "Ajuste os filtros ou convide uma nova pessoa."
+    },
+    "roles": {
+      "admin": {
+        "name": "Administrador",
+        "description": "Acesso total, incluindo gestão de usuários e configurações."
+      },
+      "manager": {
+        "name": "Gerente",
+        "description": "Gerencia equipes e dados do dia a dia, sem alterar configurações."
+      },
+      "support": {
+        "name": "Suporte",
+        "description": "Atende solicitações e consulta registros de clientes."
+      },
+      "viewer": {
+        "name": "Leitor",
+        "description": "Acesso somente leitura."
+      }
+    },
+    "rolesTab": {
+      "permissions": "{count, plural, one {# permissão} other {# permissões}}",
+      "users": "{count, plural, one {# usuário} other {# usuários}}"
+    }
+  },
+  "mobileDescription": "Exibe o menu lateral de navegação."
 }
