@@ -1,7 +1,11 @@
 <!-- BEGIN:nextjs-agent-rules -->
+
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
 <!-- END:nextjs-agent-rules -->
 
 # Ginga invariants
@@ -24,3 +28,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Preserve requestId/x-correlation-id validado; nunca mostre mensagens técnicas de 500 ou registre bodies/secrets.
 - Mapear details somente para campos conhecidos. Zod no browser é UX; server validation permanece autoridade.
 - Não hardcode mensagens de erro nos componentes. Use localizedError/localizedValidation e a política de retry central.
+
+# Verificação de frontend
+
+- Ao criar ou alterar UI, rode `npm run dev` e valide a tela com o MCP `playwright` (`.mcp.json`): snapshot de acessibilidade, estados de loading/vazio/erro, console sem erros, viewport mobile e os dois locales. Detalhes em docs/frontend-verification.md.
+- Nunca insira credenciais reais nem contorne o redirect ao Identity pelo MCP.

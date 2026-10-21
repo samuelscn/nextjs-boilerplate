@@ -1,0 +1,18 @@
+{
+  "browser": {
+    "browserName": "chromium",
+    "isolated": true,
+    "launchOptions": { "headless": true },
+    "contextOptions": {
+      "locale": "pt-BR",
+      "viewport": { "width": 1280, "height": 800 },
+      "ignoreHTTPSErrors": true
+    }
+  },
+  "capabilities": ["devtools"],
+  "console": { "level": "warning" },
+  "network": {
+    "allowedOrigins": ["http://localhost:3000", "https://localhost:3000"]
+  },
+  "outputDir": "./.playwright-mcp"
+}
