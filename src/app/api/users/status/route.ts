@@ -6,7 +6,7 @@ import { changeStatusSchema, userSchema } from "@/lib/validation/users";
 
 export const dynamic = "force-dynamic";
 export const POST = createBffHandler({
-  method: "POST", input: changeStatusSchema, output: userSchema,
+  method: "POST", permission: "member:update", input: changeStatusSchema, output: userSchema,
   execute: async input => {
     if (getEnv().APP_KIND !== "backoffice") throw new HttpError(404, "RESOURCE_NOT_FOUND");
     if (!input) throw new HttpError(400, "VALIDATION_ERROR");

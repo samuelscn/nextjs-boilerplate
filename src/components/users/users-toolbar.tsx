@@ -7,6 +7,7 @@ import { useListParams } from "@/hooks/use-list-params";
 import { SearchInput } from "../list/search-input";
 import { MultiSelectFilter } from "../list/multi-select-filter";
 import { InviteUserDialog } from "./invite-user-dialog";
+import { Can } from "../access/can";
 import { roleLabel } from "./labels";
 
 export function UsersToolbar({ query, roles }: { query: UsersQuery; roles: Role[] }) {
@@ -23,6 +24,6 @@ export function UsersToolbar({ query, roles }: { query: UsersQuery; roles: Role[
     <MultiSelectFilter label={t("filters.status")} placeholder={t("filters.allStatuses")} className="w-full md:w-44" summary={summary}
       options={userStatuses.map(status => ({ value: status, label: t("status." + status) }))} value={query.status} onChange={status => update({ status })} />
     {filtered && <Button variant="ghost" onClick={() => clear(["q", "role", "status", "page"])}><XIcon />{t("filters.clear")}</Button>}
-    <div className="md:ml-auto"><InviteUserDialog roles={roles} /></div>
+    <Can permission="member:invite"><div className="md:ml-auto"><InviteUserDialog roles={roles} /></div></Can>
   </div>;
 }

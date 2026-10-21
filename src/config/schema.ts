@@ -24,6 +24,11 @@ const auth = z.object({
   SESSION_SINGLE_PROCESS: flag.default(false),
   SESSION_TTL_SECONDS: z.coerce.number().int().min(300).max(28800).default(28800),
   PRODUCT_API_URL: z.string().optional(),
+  // Data source of Product API operations: in-process mock adapters or the real API.
+  // Defaults to mock outside production; mock in production fails at boot.
+  API_MODE: z.enum(["mock", "live"]).optional(),
+  // Mock only: comma-separated permissions of the signed-in user ("*" = all) to exercise restricted UIs.
+  API_MOCK_PERMISSIONS: z.string().max(4096).default("*"),
 });
 const schema = core.superRefine((value, ctx) => {
   if (!safeServiceUrl(value.APP_URL, value.NODE_ENV !== "production") ||
@@ -46,9 +51,11 @@ export function parseEnv(input: Record<string, string | undefined>) {
     if (value.OIDC_CLIENT_TYPE === "confidential" && !value.OIDC_CLIENT_SECRET) issue("OIDC_CLIENT_SECRET");
     if (value.OIDC_CLIENT_TYPE === "public" && value.OIDC_CLIENT_SECRET) issue("OIDC_CLIENT_SECRET");
     if (production && !value.SESSION_SINGLE_PROCESS) issue("SESSION_SINGLE_PROCESS");
+    if (production && value.API_MODE === "mock") issue("API_MODE");
   }).safeParse(normalized);
   if (!result.success) throw configError(result.error);
-  return { ...base.data, ...result.data, APP_KIND: base.data.APP_KIND };
+  const API_MODE = result.data.API_MODE ?? (base.data.NODE_ENV === "production" ? "live" : "mock");
+  return { ...base.data, ...result.data, API_MODE, APP_KIND: base.data.APP_KIND };
 }
 function configError(error: z.ZodError) {
   // Never include rejected input, Zod messages or secrets in logs.

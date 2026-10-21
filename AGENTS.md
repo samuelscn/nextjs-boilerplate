@@ -17,7 +17,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Auth exclusivamente por redirect ao Ginga Identity. Password nunca passa pelo produto.
 - Tokens/secrets/sessões são server-only. Nunca serializar em props/RSC, cookies com tokens ou storage do browser.
 - Product API autenticada somente pelo servidor/BFF, base server-only, paths restritos e output Zod.
-- Autentique cada operação; layout/proxy e permissões de UI não são autorização.
+- Autentique cada operação; layout/proxy e permissões de UI não são autorização. Permissões adaptam a UI (docs/authorization.md): página checa `can(await getAccess(), p)` antes de buscar dados e renderiza `ForbiddenState`; client usa `<Can>`/`useCan`; BFF declara `permission`; navegação declara `permission`.
 - Não cachear globalmente dados privados. Sem singleton Query no servidor.
 - Valide boundaries com Zod e env em src/config/env.ts; não ler process.env espalhado.
 - Preserve CSRF, CSP, cookies, state/nonce/PKCE e fail closed. Leia docs/security.md para mudanças nesses limites.

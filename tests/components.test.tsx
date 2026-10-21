@@ -8,7 +8,9 @@ import type { Locale } from "@/i18n/config";
 import { ApiError, NetworkError } from "@/lib/http/api-error";
 import userEvent from "@testing-library/user-event";
 import { ExampleForm } from "@/components/forms/example-form";
-import { ErrorState, EmptyState, LoadingState } from "@/components/feedback";
+import { ErrorState, EmptyState, ForbiddenState, LoadingState } from "@/components/feedback";
+import { AccessProvider } from "@/providers/access-provider";
+import { Can } from "@/components/access/can";
 import { BackofficeShell } from "@/components/backoffice/shell";
 import ErrorPage from "@/app/error";
 import { QueryProvider } from "@/providers/query-provider";
@@ -95,13 +97,28 @@ describe("own components and integration with Ginga UI", () => {
     expect(screen.queryByText("private detail")).not.toBeInTheDocument();
   });
   it("provides semantic backoffice navigation, active link, language and logout", async () => {
-    render(<QueryProvider><BackofficeShell><h1>Visão geral</h1></BackofficeShell></QueryProvider>);
+    render(<QueryProvider><AccessProvider permissions={["member:read"]}><BackofficeShell><h1>Visão geral</h1></BackofficeShell></AccessProvider></QueryProvider>);
     expect(screen.getByRole("navigation", { name: "Navegação principal" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Usuários" })).toHaveAttribute("aria-current", "page");
     await userEvent.click(screen.getByRole("button", { name: "Minha conta" }));
     expect((await screen.findByRole("menuitem", { name: "Sair" })).closest("form")).toHaveAttribute("method", "post");
     expect(screen.getByRole("menuitem", { name: "English" }).closest("form")).toHaveAttribute("action", "/api/locale");
     expect(screen.getByRole("main")).toContainElement(screen.getByRole("heading"));
+  });
+  it("hides navigation and actions the user cannot use", () => {
+    render(<AccessProvider permissions={["role:read"]}>
+      <BackofficeShell><Can permission="member:invite" fallback={<p>fallback</p>}><button>Convidar</button></Can><Can permission="role:read"><button>Ver roles</button></Can></BackofficeShell>
+    </AccessProvider>);
+    expect(screen.queryByRole("link", { name: "Usuários" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Convidar" })).not.toBeInTheDocument();
+    expect(screen.getByText("fallback")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Ver roles" })).toBeVisible();
+  });
+  it.each(["pt-BR", "en"] as const)("explains 403 without offering login (%s)", locale => {
+    render(<ForbiddenState backHref="/backoffice" />, locale);
+    expect(screen.getByRole("heading", { name: catalogs[locale].common.forbidden.title })).toBeVisible();
+    expect(screen.getByRole("link", { name: catalogs[locale].common.forbidden.back })).toHaveAttribute("href", "/backoffice");
+    expect(screen.queryByRole("link", { name: /login|entrar/iu })).not.toBeInTheDocument();
   });
   it("never shares Query state between server factories", () => {
     const first = createQueryClient(); const second = createQueryClient();

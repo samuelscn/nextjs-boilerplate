@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { createProductClient } from "@/server/api/product";
 import { createBffHandler } from "@/server/api/route";
+import { HttpError } from "@/lib/http/error";
 import { readJson } from "@/lib/http/json";
 import { bffRequest } from "@/lib/http/browser";
 import { assertSameOrigin } from "@/server/security/csrf";
@@ -84,5 +85,16 @@ describe("HTTP and BFF security", () => {
     dependencies.getSession.mockResolvedValueOnce(null as never);
     expect((await handler(req('{"label":"valid"}'))).status).toBe(401);
     expect(execute).toHaveBeenCalledOnce();
+  });
+  it("re-checks the route permission before executing", async () => {
+    const execute = vi.fn(async () => ({ label: "ok" }));
+    const assertPermission = vi.fn(async () => { throw new HttpError(403, "AUTHORIZATION_FORBIDDEN"); });
+    const dependencies = { getEnv: () => authEnv(), getSession: vi.fn(async () => ({ user: { id: "subject" }, expiresAt: Date.now() + 60_000 })), assertPermission };
+    const handler = createBffHandler({ method: "POST", permission: "member:invite", input: schema, output: schema, execute }, dependencies);
+    const response = await handler(new Request("https://app.test/api/example", { method: "POST", headers: { origin: "https://app.test", "Content-Type": "application/json" }, body: '{"label":"valid"}' }));
+    expect(response.status).toBe(403);
+    expect(await response.json()).toMatchObject({ code: "AUTHORIZATION_FORBIDDEN" });
+    expect(assertPermission).toHaveBeenCalledWith("member:invite");
+    expect(execute).not.toHaveBeenCalled();
   });
 });

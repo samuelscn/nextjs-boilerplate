@@ -31,5 +31,10 @@
     "range": "{from}–{to} de {total}",
     "selected": "{count} selecionados",
     "clearFilters": "Limpar filtros"
+  },
+  "forbidden": {
+    "title": "Acesso negado",
+    "description": "Você não tem permissão para ver este conteúdo. Se precisar de acesso, fale com um administrador.",
+    "back": "Voltar"
   }
 }

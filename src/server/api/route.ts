@@ -5,7 +5,9 @@ import { HttpError } from "@/lib/http/error";
 import { readBodyJson } from "@/lib/http/body";
 import { ApiError } from "@/lib/http/api-error";
 import { validationDetails } from "@/lib/validation/details";
+import type { Permission } from "@/lib/access/permissions";
 import { getSession } from "../auth";
+import { assertPermission } from "../access";
 import { errorResponse, privateJson, requestId } from "../http";
 import { assertSameOrigin } from "../security/csrf";
 
@@ -15,8 +17,10 @@ export function createBffHandler<Input, Output>(options: {
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   input?: z.ZodType<Input>;
   output: z.ZodType<Output>;
+  /** Re-checked on the server before execute; the Product API still authorizes the call. */
+  permission?: Permission;
   execute: (input: Input | undefined, requestId: string) => Promise<Output>;
-}, dependencies = { getEnv, getSession }) {
+}, dependencies: { getEnv: typeof getEnv; getSession: typeof getSession; assertPermission?: typeof assertPermission } = { getEnv, getSession, assertPermission }) {
   return async (request: Request): Promise<Response> => {
     const id = requestId(request);
     try {
@@ -25,6 +29,7 @@ export function createBffHandler<Input, Output>(options: {
       if (request.method !== options.method) throw new HttpError(405, "method_not_allowed");
       if (request.method !== "GET") assertSameOrigin(request, env.APP_URL);
       if (!await dependencies.getSession()) throw new HttpError(401, "unauthorized");
+      if (options.permission) await (dependencies.assertPermission ?? assertPermission)(options.permission);
       let input: Input | undefined;
       if (options.input) {
         let body: unknown;

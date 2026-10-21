@@ -24,6 +24,12 @@ describe("capability environment", () => {
     expect(() => parseEnv({ NODE_ENV: "production" })).toThrow("APP_URL");
     expect(authEnv({ NODE_ENV: "production", SESSION_SINGLE_PROCESS: "true" }).NODE_ENV).toBe("production");
   });
+  it("defaults to mock data outside production and refuses mock in production", () => {
+    expect(authEnv().API_MODE).toBe("mock");
+    expect(authEnv({ API_MODE: "live" }).API_MODE).toBe("live");
+    expect(authEnv({ NODE_ENV: "production", SESSION_SINGLE_PROCESS: "true" }).API_MODE).toBe("live");
+    expect(() => authEnv({ NODE_ENV: "production", SESSION_SINGLE_PROCESS: "true", API_MODE: "mock" })).toThrow("API_MODE");
+  });
   it.each(["https://user:secret@app.test", "https://app.test/path", "https://app.test/#fragment", "//app.test", "javascript:alert(1)"])("rejects unsafe origin %s", APP_URL => {
     expect(() => parseEnv({ APP_URL })).toThrow();
   });

@@ -13,6 +13,7 @@ import { bffRequest } from "@/lib/http/browser";
 import { userSchema, type Role, type User } from "@/lib/validation/users";
 import { ErrorState } from "../feedback";
 import { roleLabel } from "./labels";
+import { useCan } from "@/providers/access-provider";
 
 const statusVariant = { active: "default", invited: "secondary", suspended: "outline" } as const;
 const initials = (user: User) => (user.name || user.email).split(/[\s@.]+/u).filter(Boolean).slice(0, 2).map(part => part[0]).join("").toUpperCase();
@@ -23,6 +24,8 @@ export function UsersTable({ users, roles }: { users: User[]; roles: Role[] }) {
   const format = useFormatter();
   const router = useRouter();
   const [failure, setFailure] = useState<unknown>();
+  const canAssign = useCan("role:assign");
+  const canUpdate = useCan("member:update");
   const mutate = useMutation({
     mutationFn: (request: { path: "/api/users/role" | "/api/users/status"; body: unknown }) => bffRequest(request.path, userSchema, { method: "POST", body: request.body }),
     onMutate: () => setFailure(undefined),
@@ -56,22 +59,22 @@ export function UsersTable({ users, roles }: { users: User[]; roles: Role[] }) {
             <TableCell className="px-4 py-3"><Badge variant={statusVariant[user.status]}>{t("status." + user.status)}</Badge></TableCell>
             <TableCell className="px-4 py-3 text-muted-foreground">{user.lastAccessAt ? format.relativeTime(new Date(user.lastAccessAt)) : t(user.status === "invited" ? "table.pending" : "table.never")}</TableCell>
             <TableCell className="px-4 py-3 text-right">
-              <DropdownMenu>
+              {(canAssign || (canUpdate && user.status !== "invited")) && <DropdownMenu>
                 <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" disabled={mutate.isPending} aria-label={t("actions.open", { user: name })} />}><MoreHorizontalIcon /></DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-52">
-                  <DropdownMenuGroup>
+                  {canAssign && <DropdownMenuGroup>
                     <DropdownMenuLabel>{t("actions.changeRole")}</DropdownMenuLabel>
                     <DropdownMenuRadioGroup value={user.roleId} onValueChange={roleId => { if (roleId !== user.roleId) mutate.mutate({ path: "/api/users/role", body: { id: user.id, roleId } }); }}>
                       {roles.map(role => <DropdownMenuRadioItem key={role.id} value={role.id}>{roleLabel(role.id, tRoles)}</DropdownMenuRadioItem>)}
                     </DropdownMenuRadioGroup>
-                  </DropdownMenuGroup>
-                  {user.status !== "invited" && <><DropdownMenuSeparator />
+                  </DropdownMenuGroup>}
+                  {canUpdate && user.status !== "invited" && <>{canAssign && <DropdownMenuSeparator />}
                     <DropdownMenuItem variant={user.status === "suspended" ? "default" : "destructive"}
                       onClick={() => mutate.mutate({ path: "/api/users/status", body: { id: user.id, status: user.status === "suspended" ? "active" : "suspended" } })}>
                       {user.status === "suspended" ? <UserCheckIcon /> : <UserXIcon />}{t(user.status === "suspended" ? "actions.reactivate" : "actions.suspend")}
                     </DropdownMenuItem></>}
                 </DropdownMenuContent>
-              </DropdownMenu>
+              </DropdownMenu>}
             </TableCell>
           </TableRow>;
         })}</TableBody>

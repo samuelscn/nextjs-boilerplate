@@ -1,5 +1,7 @@
 import { useTranslations } from "next-intl";
-import { Alert, AlertDescription, AlertTitle, Card, CardContent, Skeleton } from "@ginga/ui";
+import Link from "next/link";
+import { ShieldXIcon } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle, buttonVariants, Card, CardContent, Skeleton } from "@ginga/ui";
 import { localizedError, errorAction } from "@/i18n/errors";
 import { normalizeFrontendError } from "@/lib/http/api-error";
 
@@ -15,6 +17,16 @@ export function ErrorState({ title, description, error }: { title?: string; desc
       {normalized.requestId && <p>{t("common.reference", { id: normalized.requestId })}</p>}
       {errorAction(normalized) === "login" && <a href="/auth/login">{t("common.actions.signIn")}</a>}
     </AlertDescription></Alert>;
+}
+// 403 for pages and sections: never redirects to login (the session is valid) and never retries.
+export function ForbiddenState({ backHref }: { backHref?: string }) {
+  const t = useTranslations("common.forbidden");
+  return <Card className="items-center gap-3 py-16 text-center">
+    <ShieldXIcon aria-hidden className="size-8 text-muted-foreground" />
+    <h2>{t("title")}</h2>
+    <p className="max-w-md text-muted-foreground">{t("description")}</p>
+    {backHref && <Link href={backHref} className={buttonVariants({ variant: "outline" })}>{t("back")}</Link>}
+  </Card>;
 }
 export function LoadingState() {
   const t = useTranslations("common");
