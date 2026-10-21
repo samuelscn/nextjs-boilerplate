@@ -1,6 +1,6 @@
 # Capabilities e contrato do template
 
-`template.config.json` (schemaVersion 1, schema local template.schema.json) é o contrato pequeno para geração futura. APP_KIND seleciona o perfil durante desenvolvimento/validação. Não há Ginga CLI implementada.
+`template.config.json` (schemaVersion 1, schema local template.schema.json) é o contrato pequeno para geração futura. APP_KIND seleciona o perfil durante desenvolvimento/validação. A Ginga CLI (`ginga new web --kind`) já define o perfil padrão; a poda abaixo ainda não é automática.
 
 | Perfil | Public core/UI/SEO | Auth/session | BFF | Query provider | Forms de referência | Shell |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -19,7 +19,7 @@ O backoffice exige autenticação, mesmo quando não há Product API. Nenhuma co
 
 O manifesto é inventário, não um programa de remoção automática: imports e composição precisam ser transformados conforme a seção seguinte. CI executa builds dos três perfis. A factory `capabilities(kind)` retorna os valores declarados. i18n.required=true declara Core obrigatório; selecione i18n.defaultLocale e estratégia, mas preserve next-intl, src/i18n, messages, /api/locale e o provider de traduções em todos os perfis.
 
-## Transformações que a futura CLI deverá fazer
+## Poda (manual; futura automação da CLI)
 
 Comuns: copiar template sem artifacts/.git/.env, definir nome no package.json, APP_NAME, APP_URL e defaultKind, selecionar perfil, personalizar metadata/icon/tokens, instalar com npm ci e manter lockfile. Não gerar credenciais ou URLs de produção fictícias. Não registrar clients em startup. O pacote UI local deve ser mantido com integridade ou substituído pela mesma versão publicada com acesso autorizado ao registry.
 

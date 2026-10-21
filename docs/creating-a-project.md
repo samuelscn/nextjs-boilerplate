@@ -1,6 +1,6 @@
 # Criar um projeto manualmente
 
-Até existir a Ginga CLI, use este repositório como template privado. Não copie node_modules, .next, .env, caches ou histórico do projeto de origem.
+Use a Ginga CLI: `ginga new web <nome> --kind public|app|backoffice` cria o repositório no GitHub com nome, perfil e `.ginga/project.yaml`. Sem a CLI, use este repositório como template privado e não copie node_modules, .next, .env, caches ou histórico do projeto de origem.
 
 ## Instalar e iniciar
 

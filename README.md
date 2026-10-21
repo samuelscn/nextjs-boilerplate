@@ -1,6 +1,6 @@
 # Ginga Next.js Boilerplate
 
-Fundação oficial da Ginga Software para landing pages, aplicações autenticadas e backoffices. Um Core e capabilities opcionais, sem domínio de produto e preparado para uma futura Ginga CLI. A CLI não faz parte deste projeto.
+Fundação oficial da Ginga Software para landing pages, aplicações autenticadas e backoffices. Um Core e capabilities opcionais, sem domínio de produto. Projetos novos nascem pela Ginga CLI (`ginga new web <nome> --kind public|app|backoffice`).
 
 ## Começar
 
@@ -24,7 +24,7 @@ Abra http://localhost:3000. O perfil padrão `public` funciona sem Identity ou P
 | app | /app protegida, OIDC, sessão server-side, BFF |
 | backoffice | /backoffice protegida, shell responsivo, navigation e Query Provider |
 
-Ajuste APP_KIND em .env.local. Auth/backoffice exigem registro de application no Ginga Identity, issuer/client/audience e secret para cliente confidencial. Config é validada por Zod conforme capability. Em produção, HTTPS e topologia de processo único explicitamente configurada são obrigatórios. [Criar um projeto](docs/creating-a-project.md) · [Contrato para a futura CLI](docs/capabilities.md).
+Ajuste APP_KIND em .env.local. Auth/backoffice exigem registro de application no Ginga Identity, issuer/client/audience e secret para cliente confidencial. Config é validada por Zod conforme capability. Em produção, HTTPS e `SESSION_SECRETS` próprias do ambiente são obrigatórios. [Criar um projeto](docs/creating-a-project.md) · [Capabilities e poda](docs/capabilities.md).
 
 ## Stack e arquitetura
 
@@ -101,4 +101,4 @@ CSP estrita requer renderização dinâmica, inclusive em public; static export 
 
 [Auditoria](docs/audit.md) · [Arquitetura](docs/architecture.md) · [Autenticação](docs/authentication.md) · [Dados](docs/data-fetching.md) · [Forms](docs/forms.md) · [Segurança](docs/security.md) · [Capabilities](docs/capabilities.md) · [Criar projeto](docs/creating-a-project.md) · [Deploy](docs/deploy.md) · [Dependências](docs/dependencies.md).
 
-O protocolo para agentes está em AGENTS.md. A futura CLI deverá selecionar/podar capabilities, ajustar composição/imports/dependências, configurar branding/env, coordenar registro Identity quando autorizado e validar o projeto resultante.
+O protocolo para agentes está em AGENTS.md. A Ginga CLI gera o repositório, define o perfil (`APP_KIND`) e o nome; a poda de capabilities não usadas ainda é manual ([capabilities](docs/capabilities.md)).
