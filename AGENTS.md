@@ -17,7 +17,7 @@ Comece por docs/ai-playbook.md (preciso de X → vá em Y) e use as skills de .c
 - Consulte template.config.json e docs/capabilities.md antes de alterar composição.
 - Server Components são o padrão; providers clientes devem estar no menor subtree possível.
 - Use @ginga/ui (pacote oficial @ginga-software/ui); não copie primitives nem execute shadcn add.
-- Auth exclusivamente por redirect ao Ginga Identity. Password nunca passa pelo produto.
+- Auth exclusivamente por redirect ao Ginga Identity. Password nunca passa pelo produto. Única exceção: `AUTH_PROVIDER=fake` (só desenvolvimento, recusado em produção, `docs/authentication.md`); não crie outros atalhos de login.
 - Tokens só no cookie de sessão HttpOnly selado (JWE A256GCM, `src/server/session/seal.ts`, chaves em `SESSION_SECRETS`); nunca em props/RSC, cookies legíveis, storage do browser ou logs. Secrets são server-only.
 - Product API autenticada somente pelo servidor/BFF, base server-only, paths restritos e output Zod.
 - Autentique cada operação; layout/proxy e permissões de UI não são autorização. Permissões adaptam a UI (docs/authorization.md): página checa `can(await getAccess(), p)` antes de buscar dados e renderiza `ForbiddenState`; client usa `<Can>`/`useCan`; BFF declara `permission`; navegação declara `permission`.

@@ -52,7 +52,7 @@ O plano **Hobby** proíbe uso comercial; migre o time para o Pro antes de um pro
 | `FEATURE_FLAGS` | opcional | ver `src/config/flags.ts` |
 | `SENTRY_DSN` / `SENTRY_ENVIRONMENT` | recomendado | DSN do projeto Sentry do front / `homolog` ou `production`; sem DSN, desligado. Release = commit da Vercel |
 
-Não defina `OIDC_ALLOW_HTTP` nem `API_MOCK_PERMISSIONS` fora do desenvolvimento.
+Não defina `AUTH_PROVIDER`, `OIDC_ALLOW_HTTP` nem `API_MOCK_PERMISSIONS` fora do desenvolvimento (o build recusa `AUTH_PROVIDER=fake`).
 
 ## Produção e rollback
 

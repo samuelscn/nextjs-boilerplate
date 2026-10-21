@@ -65,6 +65,12 @@ Layouts verificam sessão, mas não são a única fronteira: cada operação/han
 
 `OIDC_MAX_AGE` permite solicitar autenticação recente e exige auth_time correspondente no ID token. Não implica MFA: o Identity atual não disponibiliza esse contrato. Futuras políticas MFA/ACR devem ser integradas e validadas quando o IdP as suportar; não inventar garantias de MFA no front.
 
+## Login fake (só desenvolvimento)
+
+`AUTH_PROVIDER=fake` troca apenas o Identity por `src/server/auth/fake.ts`; login, callback (state, transação selada), cookie, renovação no proxy e logout continuam sendo o código real. `/auth/login` leva a `/auth/fake`, que lista os usuários fake e devolve ao `/auth/callback` como o Identity faria. As variáveis `OIDC_*` são ignoradas (valores fixos internos) e só `SESSION_SECRETS` é exigida. O schema recusa `AUTH_PROVIDER=fake` com `NODE_ENV=production`, então não funciona em `next build`/`start`, homologação ou produção.
+
+Os usuários e access tokens são os mesmos do fake da API (`FAKE_IDENTITY_TOKENS` do nestjs-boilerplate): `admin` → `fake-token-admin` (`usr_fake_admin`), `user-a`, `user-b`, `stranger`, `invitee`. Com `API_MODE=mock` tudo roda sem backend (permissões de `API_MOCK_PERMISSIONS`). Com `API_MODE=live` e `PRODUCT_API_URL` apontando para a API local rodando `IDENTITY_PROVIDER=fake`, o BFF envia `Bearer fake-token-...` e a API aplica permissões e dados reais (crie o OWNER com `npm run db:bootstrap-owner -- usr_fake_admin` na API). Uma API em `IDENTITY_PROVIDER=oidc` (homologação/produção) recusa esses tokens.
+
 ## Desenvolvimento e testes reais
 
 HTTP somente em loopback fora de produção, com `OIDC_ALLOW_HTTP=true`. APP_URL local pode ser http://localhost:3000; Identity local costuma usar http://localhost:4000/api/auth. Configure a audience cadastrada, sem assumir que é a origem do Next.

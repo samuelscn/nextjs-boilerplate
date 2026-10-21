@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { getAuthEnv, getEnv } from "@/config/env";
 import { createIdentityClient } from "./oidc";
+import { createFakeIdentityClient } from "./fake";
 import { createAuthService } from "./service";
 import { parseSealKeys } from "../session/seal";
 import { internalReturnPath } from "@/lib/validation/urls";
@@ -10,7 +11,8 @@ import { internalReturnPath } from "@/lib/validation/urls";
 let service: ReturnType<typeof createAuthService> | undefined;
 export function authService() {
   const env = getAuthEnv();
-  return service ??= createAuthService(env, parseSealKeys(env.SESSION_SECRETS), createIdentityClient(env));
+  const identity = env.AUTH_PROVIDER === "fake" ? createFakeIdentityClient(env) : createIdentityClient(env);
+  return service ??= createAuthService(env, parseSealKeys(env.SESSION_SECRETS), identity);
 }
 export async function getSession() {
   if (getEnv().APP_KIND === "public") return null;

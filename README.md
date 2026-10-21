@@ -24,7 +24,7 @@ Abra http://localhost:3000. O perfil padrão `public` funciona sem Identity ou P
 | app | /app protegida, OIDC, sessão server-side, BFF |
 | backoffice | /backoffice protegida, shell responsivo, navigation e Query Provider |
 
-Ajuste APP_KIND em .env.local. Auth/backoffice exigem registro de application no Ginga Identity, issuer/client/audience e secret para cliente confidencial. Config é validada por Zod conforme capability. Em produção, HTTPS e `SESSION_SECRETS` próprias do ambiente são obrigatórios. [Criar um projeto](docs/creating-a-project.md) · [Capabilities e poda](docs/capabilities.md).
+Ajuste APP_KIND em .env.local. Para codar app/backoffice sem Identity, use `AUTH_PROVIDER=fake` (só desenvolvimento; com `API_MODE=live` conversa com a API local em modo fake; [detalhes](docs/authentication.md#login-fake-só-desenvolvimento)). Fora disso, auth/backoffice exigem registro de application no Ginga Identity, issuer/client/audience e secret para cliente confidencial. Config é validada por Zod conforme capability. Em produção, HTTPS e `SESSION_SECRETS` próprias do ambiente são obrigatórios. [Criar um projeto](docs/creating-a-project.md) · [Capabilities e poda](docs/capabilities.md).
 
 ## Stack e arquitetura
 
