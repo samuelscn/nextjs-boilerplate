@@ -45,6 +45,8 @@ APP_URL=https://localhost docker compose up --build -d
 
 Compose expõe apenas 127.0.0.1:3000, usa non-root/read-only/cap_drop e precisa de TLS ingress. Para um host externo configure sua origem real. Não copiar .env para imagem. Réplicas e serverless são suportados: a sessão é selada no cookie, sem store.
 
+O deploy padrão é na Vercel (homolog na `main`, produção na release): siga o checklist de [deploy.md](deploy.md). O Docker continua disponível para hospedagem própria.
+
 ## Antes de publicar o produto
 
 Configure branch protection, secret scanning/push protection e checks required; habilite CodeQL/Dependency Review quando contratados; defina canal de responsible disclosure em SECURITY.md. Execute os gates e valide OIDC real no ambiente homologado. Personalize metadata, páginas, navegação e contatos. Veja security.md e dependencies.md.

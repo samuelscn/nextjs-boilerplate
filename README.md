@@ -91,8 +91,14 @@ CSP com nonce, HSTS de produção, cookies seguros, CSRF por Origin, URLs restri
 
 CSP estrita requer renderização dinâmica, inclusive em public; static export não está habilitado. Revogação da sessão do front vale no próximo refresh (até 5 minutos). Testes isolados não substituem homologação com Identity real. [Limites e contrato de auth](docs/authentication.md).
 
+## Ao nascer um projeto
+
+1. Escolha o perfil (`APP_KIND`) e personalize nome, metadata, branding e navegação ([criar projeto](docs/creating-a-project.md)).
+2. Deploy na Vercel: homolog na `main`, produção na release do GitHub. Siga o checklist de [deploy](docs/deploy.md): projeto e branch de produção, domínio de homolog, proteção de deployment, application no Identity, variáveis, `VERCEL_TOKEN`.
+3. Fluxo de trabalho (Linear, conta bot, ruleset da `main`): [workflow](docs/workflow.md).
+
 ## Documentação
 
-[Auditoria](docs/audit.md) · [Arquitetura](docs/architecture.md) · [Autenticação](docs/authentication.md) · [Dados](docs/data-fetching.md) · [Forms](docs/forms.md) · [Segurança](docs/security.md) · [Capabilities](docs/capabilities.md) · [Criar projeto](docs/creating-a-project.md) · [Dependências](docs/dependencies.md).
+[Auditoria](docs/audit.md) · [Arquitetura](docs/architecture.md) · [Autenticação](docs/authentication.md) · [Dados](docs/data-fetching.md) · [Forms](docs/forms.md) · [Segurança](docs/security.md) · [Capabilities](docs/capabilities.md) · [Criar projeto](docs/creating-a-project.md) · [Deploy](docs/deploy.md) · [Dependências](docs/dependencies.md).
 
 O protocolo para agentes está em AGENTS.md. A futura CLI deverá selecionar/podar capabilities, ajustar composição/imports/dependências, configurar branding/env, coordenar registro Identity quando autorizado e validar o projeto resultante.
