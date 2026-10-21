@@ -26,7 +26,7 @@ Localmente, é permitido HTTP loopback com OIDC_ALLOW_HTTP=true e NODE_ENV fora 
 
 ## Backoffice
 
-Siga a configuração autenticada com APP_KIND=backoffice. Edite src/config/navigation.ts e componha páginas no grupo protegido. Shell, Query Provider e estados neutros já existem. Não adicionar users/orders/etc como modelo de template.
+Siga a configuração autenticada com APP_KIND=backoffice. O perfil já nasce com gestão de usuários e roles (src/server/members, /backoffice/users) integrada à Product API (nestjs-boilerplate, pacote access-control) e permissões na UI. Sem a API, `API_MODE=mock` usa dados em memória com o mesmo contrato. Edite src/config/navigation.ts e componha páginas no grupo protegido seguindo a tela de usuários como modelo de listagem (URL params, filtros múltiplos, paginação, gateway mock/live).
 
 ## Produção
 

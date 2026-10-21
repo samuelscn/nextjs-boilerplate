@@ -15,5 +15,8 @@
   "UNSUPPORTED_MEDIA_TYPE": "O formato enviado não é suportado.",
   "SERVICE_UNAVAILABLE": "O serviço está temporariamente indisponível. Tente novamente em instantes.",
   "SYSTEM_ROLE_IMMUTABLE": "Roles do sistema não podem ser alteradas nem excluídas.",
-  "LAST_OWNER_REQUIRED": "É necessário manter ao menos um proprietário."
+  "LAST_OWNER_REQUIRED": "É necessário manter ao menos um proprietário.",
+  "MEMBER_ALREADY_EXISTS": "Esta pessoa já faz parte da aplicação ou já foi convidada.",
+  "INVITATION_PENDING": "O convite ainda não foi aceito. A pessoa fica ativa ao entrar pela primeira vez.",
+  "SELF_MANAGEMENT_FORBIDDEN": "Você não pode suspender o próprio acesso."
 }

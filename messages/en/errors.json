@@ -15,5 +15,8 @@
   "UNSUPPORTED_MEDIA_TYPE": "The submitted format is not supported.",
   "SERVICE_UNAVAILABLE": "The service is temporarily unavailable. Try again shortly.",
   "SYSTEM_ROLE_IMMUTABLE": "System roles cannot be changed or deleted.",
-  "LAST_OWNER_REQUIRED": "At least one owner must remain."
+  "LAST_OWNER_REQUIRED": "At least one owner must remain.",
+  "MEMBER_ALREADY_EXISTS": "This person is already a member or has already been invited.",
+  "INVITATION_PENDING": "The invitation has not been accepted yet. The person becomes active on first sign-in.",
+  "SELF_MANAGEMENT_FORBIDDEN": "You cannot suspend your own access."
 }

@@ -84,6 +84,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/access/members/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AccessController_invite"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/access/members/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["AccessController_setStatus"];
+        trace?: never;
+    };
     "/access/members/{id}": {
         parameters: {
             query?: never;
@@ -170,11 +202,34 @@ export interface components {
             description?: string;
             permissions: components["schemas"]["Permission"][];
         };
+        /** @enum {string} */
+        MemberStatus: "invited" | "active" | "suspended";
         MemberResponseDto: {
             /** Format: uuid */
             id: string;
-            identityUserId: string;
+            identityUserId: string | null;
+            displayName: string | null;
+            email: string | null;
+            status: components["schemas"]["MemberStatus"];
+            /** Format: date-time */
+            lastSeenAt: string | null;
             roleIds: string[];
+        };
+        MemberPageResponseDto: {
+            items: components["schemas"]["MemberResponseDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
+        InvitationDto: {
+            /** Format: email */
+            email: string;
+            /** Format: uuid */
+            roleId: string;
+        };
+        MemberStatusDto: {
+            /** @enum {string} */
+            status: "active" | "suspended";
         };
         MemberDto: {
             /** @description `sub` of the user in the identity provider. */
@@ -194,7 +249,7 @@ export interface components {
          * @description Stable problem identity. Clients decide and translate by this value; unknown values fall back to the generic message of the status.
          * @enum {string}
          */
-        ProblemCode: "VALIDATION_ERROR" | "AUTHENTICATION_REQUIRED" | "AUTHORIZATION_FORBIDDEN" | "RESOURCE_NOT_FOUND" | "RESOURCE_CONFLICT" | "DOMAIN_RULE_VIOLATION" | "RATE_LIMIT_EXCEEDED" | "SERVICE_UNAVAILABLE" | "INTERNAL_SERVER_ERROR" | "METHOD_NOT_ALLOWED" | "PAYLOAD_TOO_LARGE" | "UNSUPPORTED_MEDIA_TYPE" | "SYSTEM_ROLE_IMMUTABLE" | "LAST_OWNER_REQUIRED";
+        ProblemCode: "VALIDATION_ERROR" | "AUTHENTICATION_REQUIRED" | "AUTHORIZATION_FORBIDDEN" | "RESOURCE_NOT_FOUND" | "RESOURCE_CONFLICT" | "DOMAIN_RULE_VIOLATION" | "RATE_LIMIT_EXCEEDED" | "SERVICE_UNAVAILABLE" | "INTERNAL_SERVER_ERROR" | "METHOD_NOT_ALLOWED" | "PAYLOAD_TOO_LARGE" | "UNSUPPORTED_MEDIA_TYPE" | "SYSTEM_ROLE_IMMUTABLE" | "LAST_OWNER_REQUIRED" | "MEMBER_ALREADY_EXISTS" | "INVITATION_PENDING" | "SELF_MANAGEMENT_FORBIDDEN";
         /**
          * @description Validation code derived from the class-validator constraint (isEmail → IS_EMAIL). Listed values are the documented ones; others may appear.
          * @enum {string}
@@ -241,7 +296,11 @@ export type PermissionGroupDto = components['schemas']['PermissionGroupDto'];
 export type PermissionCatalogResponseDto = components['schemas']['PermissionCatalogResponseDto'];
 export type RoleResponseDto = components['schemas']['RoleResponseDto'];
 export type RoleDto = components['schemas']['RoleDto'];
+export type MemberStatus = components['schemas']['MemberStatus'];
 export type MemberResponseDto = components['schemas']['MemberResponseDto'];
+export type MemberPageResponseDto = components['schemas']['MemberPageResponseDto'];
+export type InvitationDto = components['schemas']['InvitationDto'];
+export type MemberStatusDto = components['schemas']['MemberStatusDto'];
 export type MemberDto = components['schemas']['MemberDto'];
 export type CreateExampleItemDto = components['schemas']['CreateExampleItemDto'];
 export type ExampleItemResponseDto = components['schemas']['ExampleItemResponseDto'];
@@ -864,7 +923,15 @@ export interface operations {
     };
     AccessController_listMembers: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Name or email contains */
+                q?: string;
+                /** @description Any of these roles */
+                role?: string[];
+                status?: components["schemas"]["MemberStatus"][];
+                page?: number;
+                pageSize?: number;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -876,7 +943,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MemberResponseDto"][];
+                    "application/json": components["schemas"]["MemberPageResponseDto"];
                 };
             };
             /** @description Problem Details (RFC 9457) */
@@ -976,6 +1043,216 @@ export interface operations {
         };
         responses: {
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberResponseDto"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    AccessController_invite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvitationDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberResponseDto"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem Details (RFC 9457) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    AccessController_setStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberStatusDto"];
+            };
+        };
+        responses: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

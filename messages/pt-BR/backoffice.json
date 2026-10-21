@@ -17,12 +17,12 @@
     "invite": {
       "action": "Convidar usuário",
       "title": "Convidar usuário",
-      "description": "A pessoa receberá um convite para acessar a aplicação com a role escolhida.",
+      "description": "A pessoa entra com o e-mail convidado no Ginga Identity e recebe a role escolhida no primeiro acesso.",
       "email": "E-mail",
       "role": "Role",
       "rolePlaceholder": "Selecione uma role",
       "submit": "Enviar convite",
-      "sent": "Convite enviado."
+      "sent": "Convite registrado."
     },
     "filters": {
       "label": "Filtrar usuários",
@@ -36,12 +36,13 @@
     "table": {
       "label": "Lista de usuários",
       "user": "Usuário",
-      "role": "Role",
       "status": "Status",
       "lastAccess": "Último acesso",
       "actions": "Ações",
       "pending": "Convite pendente",
-      "never": "Nunca acessou"
+      "never": "Nunca acessou",
+      "roles": "Roles",
+      "noRoles": "Sem role"
     },
     "status": {
       "active": "Ativo",
@@ -50,7 +51,7 @@
     },
     "actions": {
       "open": "Ações para {user}",
-      "changeRole": "Alterar role",
+      "roles": "Roles",
       "suspend": "Suspender acesso",
       "reactivate": "Reativar acesso"
     },
@@ -59,27 +60,66 @@
       "description": "Ajuste os filtros ou convide uma nova pessoa."
     },
     "roles": {
+      "owner": {
+        "name": "Proprietário",
+        "description": "Controle total, inclusive sobre outros proprietários. Deve existir ao menos um ativo."
+      },
       "admin": {
         "name": "Administrador",
-        "description": "Acesso total, incluindo gestão de usuários e configurações."
+        "description": "Acesso total, exceto gerenciar proprietários."
       },
-      "manager": {
-        "name": "Gerente",
-        "description": "Gerencia equipes e dados do dia a dia, sem alterar configurações."
-      },
-      "support": {
-        "name": "Suporte",
-        "description": "Atende solicitações e consulta registros de clientes."
-      },
-      "viewer": {
-        "name": "Leitor",
-        "description": "Acesso somente leitura."
+      "member": {
+        "name": "Membro",
+        "description": "Acesso básico de leitura."
       }
     },
     "rolesTab": {
       "permissions": "{count, plural, one {# permissão} other {# permissões}}",
-      "users": "{count, plural, one {# usuário} other {# usuários}}"
+      "system": "Sistema",
+      "systemHint": "Roles do sistema não podem ser alteradas.",
+      "create": "Nova role",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "actions": "Ações para a role {role}",
+      "deleteTitle": "Excluir a role {role}?",
+      "deleteDescription": "As pessoas com esta role perdem as permissões que ela concede. Esta ação não pode ser desfeita.",
+      "deleteConfirm": "Excluir role",
+      "deleting": "Excluindo…",
+      "empty": "Nenhuma role cadastrada.",
+      "form": {
+        "createTitle": "Nova role",
+        "editTitle": "Editar role",
+        "description": "Defina o nome e as permissões concedidas a quem receber esta role.",
+        "name": "Nome",
+        "slug": "Identificador",
+        "slugHint": "Letras minúsculas, números e hífen. Usado pela API.",
+        "descriptionField": "Descrição",
+        "permissions": "Permissões",
+        "submit": "Salvar role"
+      }
     }
   },
-  "mobileDescription": "Exibe o menu lateral de navegação."
+  "mobileDescription": "Exibe o menu lateral de navegação.",
+  "permissions": {
+    "role": {
+      "label": "Roles",
+      "read": "Ver roles",
+      "create": "Criar roles",
+      "update": "Editar roles",
+      "delete": "Excluir roles",
+      "assign": "Atribuir roles"
+    },
+    "member": {
+      "label": "Pessoas",
+      "read": "Ver pessoas",
+      "invite": "Convidar pessoas",
+      "update": "Suspender e reativar",
+      "remove": "Remover pessoas"
+    },
+    "example": {
+      "label": "Exemplo",
+      "read": "Ver itens de exemplo",
+      "create": "Criar itens de exemplo"
+    }
+  }
 }

@@ -13,7 +13,7 @@ import {
 import { bffRequest } from "@/lib/http/browser";
 import { ApiError, normalizeFrontendError } from "@/lib/http/api-error";
 import { applyFieldErrors } from "@/lib/validation/form-errors";
-import { createInviteSchema, userSchema, type InviteValues, type Role } from "@/lib/validation/users";
+import { createInviteSchema, memberSchema, type InviteValues, type Role } from "@/lib/validation/users";
 import { ErrorState } from "../feedback";
 import { roleLabel } from "./labels";
 
@@ -28,14 +28,14 @@ export function InviteUserDialog({ roles }: { roles: Role[] }) {
     resolver: zodResolver(createInviteSchema(code => t("validation." + code))), defaultValues: { email: "", roleId: "" },
   });
   const invite = useMutation({
-    mutationFn: (values: InviteValues) => bffRequest("/api/users/invite", userSchema, { method: "POST", body: values }),
+    mutationFn: (values: InviteValues) => bffRequest("/api/users/invite", memberSchema, { method: "POST", body: values }),
     onSuccess: () => { setOpen(false); reset(); router.refresh(); },
     onError: error => {
       if (error instanceof ApiError && error.code === "VALIDATION_ERROR") applyFieldErrors(error.details, ["email", "roleId"], setError, t);
       setFailure(normalizeFrontendError(error));
     },
   });
-  const items = Object.fromEntries(roles.map(role => [role.id, roleLabel(role.id, tRoles)]));
+  const items = Object.fromEntries(roles.map(role => [role.id, roleLabel(role, tRoles)]));
   return <Dialog open={open} onOpenChange={next => { setOpen(next); if (!next) { setFailure(undefined); reset(); } }}>
     <DialogTrigger render={<Button />}><PlusIcon />{t("backoffice.users.invite.action")}</DialogTrigger>
     <DialogContent closeLabel={t("common.actions.close")}>

@@ -2,7 +2,7 @@
 import { useTranslations } from "next-intl";
 import { XIcon } from "lucide-react";
 import { Button } from "@ginga/ui";
-import { userStatuses, type Role, type UsersQuery } from "@/lib/validation/users";
+import { memberStatuses, type Role, type UsersQuery } from "@/lib/validation/users";
 import { useListParams } from "@/hooks/use-list-params";
 import { SearchInput } from "../list/search-input";
 import { MultiSelectFilter } from "../list/multi-select-filter";
@@ -19,11 +19,11 @@ export function UsersToolbar({ query, roles }: { query: UsersQuery; roles: Role[
   const summary = (count: number) => tCommon("selected", { count });
   return <div role="search" aria-label={t("filters.label")} aria-busy={pending} className="flex flex-col gap-3 md:flex-row md:items-center">
     <SearchInput value={query.q} label={t("filters.search")} onSearch={q => update({ q })} />
-    <MultiSelectFilter label={t("filters.role")} placeholder={t("filters.allRoles")} className="w-full md:w-48" summary={summary}
-      options={roles.map(role => ({ value: role.id, label: roleLabel(role.id, tRoles) }))} value={query.role} onChange={role => update({ role })} />
+    {roles.length > 0 && <MultiSelectFilter label={t("filters.role")} placeholder={t("filters.allRoles")} className="w-full md:w-48" summary={summary}
+      options={roles.map(role => ({ value: role.id, label: roleLabel(role, tRoles) }))} value={query.role} onChange={role => update({ role })} />}
     <MultiSelectFilter label={t("filters.status")} placeholder={t("filters.allStatuses")} className="w-full md:w-44" summary={summary}
-      options={userStatuses.map(status => ({ value: status, label: t("status." + status) }))} value={query.status} onChange={status => update({ status })} />
+      options={memberStatuses.map(status => ({ value: status, label: t("status." + status) }))} value={query.status} onChange={status => update({ status })} />
     {filtered && <Button variant="ghost" onClick={() => clear(["q", "role", "status", "page"])}><XIcon />{t("filters.clear")}</Button>}
-    <Can permission="member:invite"><div className="md:ml-auto"><InviteUserDialog roles={roles} /></div></Can>
+    {roles.length > 0 && <Can permission="member:invite"><Can permission="role:assign"><div className="md:ml-auto"><InviteUserDialog roles={roles} /></div></Can></Can>}
   </div>;
 }

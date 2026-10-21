@@ -18,22 +18,25 @@ Headers de entrada, cookies do browser, Set-Cookie e Location da API não são r
 
 Respostas JSON são limitadas a 1 MiB e validadas por Zod. Use z.object com somente os campos públicos necessários; nunca z.any/z.unknown/passthrough para projetar resposta de produto ao browser. Campos extras são removidos. Uma proteção adicional rejeita reflexão do access token e nomes de campos de credenciais.
 
-## Montar uma operação de produto
+## Montar uma operação de produto: gateway mock/live
 
-Não há endpoint fictício registrado no boilerplate. Ao existir um contrato real, crie uma rota nomeada em src/app/api, seu schema de entrada/saída e componha `createBffHandler` com `productRequest`. O helper valida método, capability, Origin em mutações, sessão, body de até 16 KiB e saída. A Product API deve validar/autorizá-los novamente.
+Operações de produto ficam atrás de um **gateway** por domínio em `src/server/<domínio>/` com duas implementações do mesmo contrato:
+
+- `live.ts`: chama `productRequest` com os caminhos e schemas do contrato (`contracts/openapi.json`; tipos em `src/lib/api/schema.d.ts`).
+- `mock.ts`: estado em memória do processo, com o mesmo formato de resposta e os **mesmos códigos de erro** da API (por exemplo `LAST_OWNER_REQUIRED`), para que UI e tratamento de erro se comportem igual nos dois modos.
+- `index.ts`: escolhe pelo `API_MODE` (`mock` por padrão fora de produção; recusado em produção) e expõe `callContext()` (sujeito da sessão + requestId).
+
+Referência completa: `src/server/members` (usuários e roles). Páginas e rotas BFF dependem só da interface do gateway:
 
 ```ts
-// Estrutura de integração; schemas e operationPath vêm do contrato real do produto.
+// src/app/api/<domínio>/<operação>/route.ts
 export const POST = createBffHandler({
-  method: "POST",
-  input: inputSchema,
-  output: outputSchema,
-  execute: (input, requestId) =>
-    productRequest(operationPath, outputSchema, {
-      method: "POST", body: input, requestId,
-    }),
+  method: "POST", permission: "member:invite", input: inviteSchema, output: memberSchema,
+  execute: async (input, requestId) => membersGateway().invite(input!, await callContext(requestId)),
 });
 ```
+
+O helper valida método, capability, Origin em mutações, sessão, permissão declarada, body de até 16 KiB e saída. A Product API valida e autoriza novamente. Respostas `204 No Content` são aceitas quando o schema admite corpo ausente (`z.unknown()`).
 
 Server Actions devem tratar FormData como unknown, validar schema, chamar requireSession e então productRequest. Cookies/Origin padrão do Next não dispensam validação/autorização. Use revalidatePath somente para conteúdo com uma política de cache revisada; não habilite cache global para dados privados.
 

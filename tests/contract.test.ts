@@ -41,6 +41,13 @@ describe("Product API problem contract", () => {
       ];
       expect(missing).toEqual([]);
     });
+    it("labels every published permission and its resource", () => {
+      const missing = schemas.Permission!.enum!.flatMap(permission => {
+        const [resource = "", action = ""] = permission.split(":");
+        return [`backoffice.permissions.${resource}.label`, `backoffice.permissions.${resource}.${action}`].filter(key => !t.has(key));
+      });
+      expect([...new Set(missing)]).toEqual([]);
+    });
     it.each(cases)("%s renders a localized message, never wire text", async (_name, { response }) => {
       const error = await normalizeApiError(Response.json(live(response.body), { status: response.status }));
       const message = localizedError(error, t);

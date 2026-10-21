@@ -17,12 +17,12 @@
     "invite": {
       "action": "Invite user",
       "title": "Invite user",
-      "description": "The person will receive an invitation to access the application with the selected role.",
+      "description": "The person signs in to Ginga Identity with the invited email and receives the selected role on first access.",
       "email": "Email",
       "role": "Role",
       "rolePlaceholder": "Select a role",
       "submit": "Send invitation",
-      "sent": "Invitation sent."
+      "sent": "Invitation recorded."
     },
     "filters": {
       "label": "Filter users",
@@ -36,12 +36,13 @@
     "table": {
       "label": "User list",
       "user": "User",
-      "role": "Role",
       "status": "Status",
       "lastAccess": "Last access",
       "actions": "Actions",
       "pending": "Invitation pending",
-      "never": "Never signed in"
+      "never": "Never signed in",
+      "roles": "Roles",
+      "noRoles": "No role"
     },
     "status": {
       "active": "Active",
@@ -50,7 +51,7 @@
     },
     "actions": {
       "open": "Actions for {user}",
-      "changeRole": "Change role",
+      "roles": "Roles",
       "suspend": "Suspend access",
       "reactivate": "Reactivate access"
     },
@@ -59,27 +60,66 @@
       "description": "Adjust the filters or invite someone new."
     },
     "roles": {
+      "owner": {
+        "name": "Owner",
+        "description": "Full control, including other owners. At least one active owner must remain."
+      },
       "admin": {
         "name": "Administrator",
-        "description": "Full access, including user management and settings."
+        "description": "Full access, except managing owners."
       },
-      "manager": {
-        "name": "Manager",
-        "description": "Manages teams and day-to-day data, without changing settings."
-      },
-      "support": {
-        "name": "Support",
-        "description": "Handles requests and looks up customer records."
-      },
-      "viewer": {
-        "name": "Viewer",
-        "description": "Read-only access."
+      "member": {
+        "name": "Member",
+        "description": "Basic read access."
       }
     },
     "rolesTab": {
       "permissions": "{count, plural, one {# permission} other {# permissions}}",
-      "users": "{count, plural, one {# user} other {# users}}"
+      "system": "System",
+      "systemHint": "System roles cannot be changed.",
+      "create": "New role",
+      "edit": "Edit",
+      "delete": "Delete",
+      "actions": "Actions for role {role}",
+      "deleteTitle": "Delete role {role}?",
+      "deleteDescription": "People with this role lose the permissions it grants. This cannot be undone.",
+      "deleteConfirm": "Delete role",
+      "deleting": "Deleting…",
+      "empty": "No roles yet.",
+      "form": {
+        "createTitle": "New role",
+        "editTitle": "Edit role",
+        "description": "Set the name and the permissions granted to whoever receives this role.",
+        "name": "Name",
+        "slug": "Identifier",
+        "slugHint": "Lowercase letters, numbers and hyphens. Used by the API.",
+        "descriptionField": "Description",
+        "permissions": "Permissions",
+        "submit": "Save role"
+      }
     }
   },
-  "mobileDescription": "Shows the side navigation menu."
+  "mobileDescription": "Shows the side navigation menu.",
+  "permissions": {
+    "role": {
+      "label": "Roles",
+      "read": "View roles",
+      "create": "Create roles",
+      "update": "Edit roles",
+      "delete": "Delete roles",
+      "assign": "Assign roles"
+    },
+    "member": {
+      "label": "People",
+      "read": "View people",
+      "invite": "Invite people",
+      "update": "Suspend and reactivate",
+      "remove": "Remove people"
+    },
+    "example": {
+      "label": "Example",
+      "read": "View example items",
+      "create": "Create example items"
+    }
+  }
 }

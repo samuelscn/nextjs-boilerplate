@@ -17,6 +17,6 @@
     "bff": { "paths": ["src/server/api", "src/app/api/session"], "dependencies": [] },
     "query": { "paths": ["src/lib/query", "src/providers/query-provider.tsx"], "dependencies": ["@tanstack/react-query"], "devDependencies": ["@tanstack/eslint-plugin-query"] },
     "forms": { "paths": ["src/components/forms", "src/lib/validation/example.ts"], "dependencies": ["react-hook-form", "@hookform/resolvers"] },
-    "backoffice": { "paths": ["src/components/backoffice", "src/components/users", "src/config/navigation.ts", "src/app/(protected)/backoffice", "src/app/api/users", "src/server/users", "src/lib/validation/users.ts", "src/lib/list", "src/components/list", "src/hooks"], "dependencies": [] }
+    "backoffice": { "paths": ["src/components/backoffice", "src/components/users", "src/config/navigation.ts", "src/app/(protected)/backoffice", "src/app/api/users", "src/app/api/roles", "src/server/members", "src/lib/validation/users.ts", "src/lib/list", "src/components/list", "src/hooks"], "dependencies": [] }
   }
 }

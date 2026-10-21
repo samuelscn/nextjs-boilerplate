@@ -5,5 +5,7 @@
   "MAX_LENGTH": "The value is too long.",
   "IS_UUID": "Enter a valid identifier.",
   "INVALID_VALUE": "Review the value of this field.",
-  "UNKNOWN_FIELD": "This field is not accepted."
+  "UNKNOWN_FIELD": "This field is not accepted.",
+  "INVALID_SLUG": "Use lowercase letters, numbers and hyphens, starting with a letter.",
+  "PERMISSIONS_REQUIRED": "Select at least one permission."
 }
