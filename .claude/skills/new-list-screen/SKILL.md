@@ -19,8 +19,8 @@ Modelo executável: `src/app/(protected)/backoffice/users/page.tsx` + `src/compo
    - `const query = <schema>.parse(await searchParams)`;
    - `gateway.list(query, await callContext())`.
 5. **Toolbar** (client): `SearchInput` (debounce já embutido) + `MultiSelectFilter` + `useListParams().update(...)`. Nunca guarde filtro em `useState`: o estado é a URL.
-6. **Tabela**: `Table*` do `@ginga/ui`, `TableCaption` sr-only, `scope="col"`, estado vazio com título/descrição traduzidos, ações por linha em `DropdownMenu` com `aria-label` traduzido incluindo o nome do item.
-7. **Paginação**: `<DataPagination page pageSize total />` (links reais, mantém filtros).
+6. **Apresentação**: decida tabela/lista/card por breakpoint com a skill `list-layout`. Na tabela: `Table*` do `@ginga/ui`, `TableCaption` sr-only, `scope="col"`, estado vazio com título/descrição traduzidos, ações por linha em `DropdownMenu` com `aria-label` traduzido incluindo o nome do item.
+7. **Paginação**: decida paginação/scroll infinito/virtualização com a skill `list-data-strategy`. Paginada: `<DataPagination page pageSize total />` (links reais, mantém filtros).
 8. **Permissões**: ações com `<Can>`/`useCan`; rotas BFF com `permission`; item em `src/config/navigation.ts` com `permission`.
 9. **i18n**: todas as chaves em `messages/pt-BR` **e** `messages/en` (o teste de catálogo compara as chaves).
 10. **Template**: adicione os novos caminhos ao módulo correto de `template.config.json`.

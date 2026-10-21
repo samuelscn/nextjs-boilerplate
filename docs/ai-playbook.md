@@ -5,6 +5,8 @@
 | Preciso de… | Vá em | Skill |
 | --- | --- | --- |
 | Tela de listagem/tabela com busca, filtros, paginação | `src/app/(protected)/backoffice/users/page.tsx`, `src/components/list/*` | `new-list-screen` |
+| Decidir tabela, lista ou card por breakpoint (nova tela ou refatoração) | `.claude/skills/list-layout/SKILL.md` | `list-layout` |
+| Decidir paginação, scroll infinito ou virtualização | `.claude/skills/list-data-strategy/SKILL.md` | `list-data-strategy` |
 | Ler/alterar dados de produto | `src/server/members/*` (gateway mock/live), `src/app/api/users/*` | `new-domain-operation` |
 | Formulário/diálogo | `src/components/users/role-form-dialog.tsx` | `new-form` |
 | Restringir por permissão | `docs/authorization.md`, `src/lib/access`, `<Can>` | `add-permission` |
