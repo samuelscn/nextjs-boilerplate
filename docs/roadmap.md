@@ -4,6 +4,25 @@ Objetivo: todo projeto Ginga nasce com login, gestão de usuários e roles, trat
 
 Repositórios: **FE** = nextjs-boilerplate, **API** = nestjs-boilerplate, **DS** = ginga-design-system, **CLI** = ginga-cli. Cada fase termina com commits pequenos (Conventional Commits) e todos os gates verdes do repositório tocado.
 
+## Status (2026-10-20)
+
+| Fase | Situação | Commits |
+| --- | --- | --- |
+| 1. Contrato de erro (API) | Concluída | API `496ae0f` |
+| 2. OpenAPI e consumo no FE | Concluída | API `3ec54de`; FE `6781dbc` |
+| 3. Permissões no frontend | Concluída (`GET /access/me`, não `/me/access`; 403 por `ForbiddenState`, pois `forbidden()` ainda é experimental no Next 16.3) | API `6572cf7`; FE `5161ca0` |
+| 4. Usuários e roles reais | Concluída (convite por email só no modo `single`) | API `b9a988b`, `7d3df7d`; FE `6a258bc` |
+| 5. Flags e modo mock | Concluída, exceto o job de CI `API_MODE=live` contra a API em container | FE `e593a2f`; API `a72aa6b` |
+| 6. Cercas de IA | Concluída | FE `55c923a`, `38e3203`; API `e6aafb1` |
+| 7. CI/CD e DX | Parcial: toasts, tema, commitlint/lint-staged feitos | FE `2f40da7`, `89dfeb1`; API `27acdab` |
+
+Pendências:
+
+- **Job de contrato live no CI**: subir API + Postgres + Identity fake em container e rodar o E2E do front com `API_MODE=live`. Hoje o contrato é garantido por `openapi:check` (API), `api:check` e `tests/contract.test.ts` (FE) sobre as fixtures publicadas.
+- **Observabilidade (OpenTelemetry)**: não implementada. A correlação ponta a ponta já existe por `x-correlation-id` = `traceId`.
+- **ginga-cli `new web` / `add resource`**: depende de publicar o nextjs-boilerplate no GitHub e fixar um commit; a poda por perfil (`template.config.json`) precisa reescrever `package.json`/lockfile.
+- **Verificação visual com sessão real**: requer `npm run dev:login` feito por uma pessoa.
+
 ## Decisões assumidas
 
 Mude aqui antes de começar a fase afetada; o restante do plano depende delas.
@@ -11,7 +30,7 @@ Mude aqui antes de começar a fase afetada; o restante do plano depende delas.
 | # | Decisão | Valor assumido | Afeta |
 | --- | --- | --- | --- |
 | D1 | Formato de erro | RFC 9457 (`application/problem+json`) + extensões `code`, `params`, `errors[]`, `traceId` | Fases 1, 2 |
-| D2 | Origem de nome/e-mail dos membros | Tabela `member_profile` na API, preenchida pelos claims OIDC no primeiro login | Fase 4 |
+| D2 | Origem de nome/e-mail dos membros | Colunas de perfil no próprio membro, lidas do UserInfo do Identity com o token do chamador em `GET /access/me` | Fase 4 |
 | D3 | Tenant | Boilerplate nasce em `AUTHORIZATION_MODE=single`; tenant fica fora deste roadmap | Fases 3, 4 |
 | D4 | Feature flags | Variáveis de ambiente tipadas atrás da interface `FlagProvider`; serviço externo depois | Fase 5 |
 | D5 | Tradução de erros | No frontend, por `code` + `params`; backend nunca decide o texto exibido | Fases 1, 2 |
