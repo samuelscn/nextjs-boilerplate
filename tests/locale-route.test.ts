@@ -8,23 +8,23 @@ let env = parseEnv({ APP_URL: "https://app.test" });
 vi.mock("@/config/env", () => ({ getEnv: () => env }));
 beforeEach(() => { env = parseEnv({ APP_URL: "https://app.test" }); });
 describe("locale strategy and preference mutation", () => {
-  it("redirects public URLs and forwards only validated locale with CSP intact", () => {
-    const response = proxy(new NextRequest("https://app.test/", { headers: { "accept-language": "en-US", "x-ginga-locale": "../../secret" } }));
+  it("redirects public URLs and forwards only validated locale with CSP intact", async () => {
+    const response = await proxy(new NextRequest("https://app.test/", { headers: { "accept-language": "en-US", "x-ginga-locale": "../../secret" } }));
     expect(response.headers.get("location")).toBe("https://app.test/en");
     expect(response.headers.get("content-security-policy")).toContain("nonce-");
-    const localized = proxy(new NextRequest("https://app.test/pt-BR", { headers: { "accept-language": "en", "x-correlation-id": "req_A" } }));
+    const localized = await proxy(new NextRequest("https://app.test/pt-BR", { headers: { "accept-language": "en", "x-correlation-id": "req_A" } }));
     expect(localized.headers.get("x-middleware-rewrite")).toBe("https://app.test/");
     expect(localized.headers.get("x-middleware-request-x-ginga-locale")).toBe("pt-BR");
     expect(localized.headers.get("x-correlation-id")).toBe("req_A");
   });
-  it("keeps API/auth paths out of locale rewrites and supports cookie-only public mode", () => {
+  it("keeps API/auth paths out of locale rewrites and supports cookie-only public mode", async () => {
     for (const path of ["/api/health", "/auth/callback", "/en/api/health", "/en/auth/login"]) {
-      const response = proxy(new NextRequest("https://app.test" + path));
+      const response = await proxy(new NextRequest("https://app.test" + path));
       expect(response.headers.has("x-middleware-rewrite")).toBe(false);
       expect(response.headers.has("location")).toBe(false);
     }
     env = parseEnv({ APP_URL: "https://app.test", I18N_URL_STRATEGY: "cookie", I18N_DEFAULT_LOCALE: "en" });
-    const response = proxy(new NextRequest("https://app.test/"));
+    const response = await proxy(new NextRequest("https://app.test/"));
     expect(response.headers.has("location")).toBe(false);
     expect(response.headers.get("content-language")).toBe("en");
   });

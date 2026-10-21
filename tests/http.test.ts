@@ -55,11 +55,9 @@ describe("HTTP and BFF security", () => {
     transport.mockRejectedValue(new Error("internal server details"));
     await expect(api("/status", schema, { requestId: "id" })).rejects.toMatchObject({ kind: "network", code: "NETWORK_ERROR" });
   });
-  it("invalidates session after an upstream 401", async () => {
-    const invalidate = vi.fn();
-    const api = createProductClient("https://api.test", async () => "token", vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 401 })), invalidate);
+  it("surfaces an upstream 401 as an error (the proxy renews or ends the sealed session)", async () => {
+    const api = createProductClient("https://api.test", async () => "token", vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 401 })));
     await expect(api("/status", schema, { requestId: "id" })).rejects.toMatchObject({ status: 401 });
-    expect(invalidate).toHaveBeenCalledOnce();
   });
   it("browser client rejects external URLs and uses same-origin credentials", async () => {
     const transport = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ label: "ok" }));
@@ -76,7 +74,7 @@ describe("HTTP and BFF security", () => {
   });
   it("checks auth, origin, body and output at a named BFF route", async () => {
     const execute = vi.fn(async () => ({ label: "ok" }));
-    const dependencies = { getEnv: () => authEnv(), getSession: vi.fn(async () => ({ user: { id: "subject" }, expiresAt: Date.now() + 60_000 })) };
+    const dependencies = { getEnv: () => authEnv(), getSession: vi.fn(async () => ({ user: { id: "subject" }, expiresAt: Date.now() + 60_000, stale: false })) };
     const handler = createBffHandler({ method: "POST", input: schema, output: schema, execute }, dependencies);
     const req = (body: string, origin = "https://app.test") => new Request("https://app.test/api/example", { method: "POST", headers: { origin, "Content-Type": "application/json" }, body });
     expect((await handler(req('{"label":"valid"}'))).status).toBe(200);
@@ -89,7 +87,7 @@ describe("HTTP and BFF security", () => {
   it("reads GET input from the query string without a same-origin header", async () => {
     const query = z.object({ q: z.string(), status: z.array(z.string()) });
     const execute = vi.fn(async (input?: z.infer<typeof query>) => ({ label: input!.q + ":" + input!.status.join() }));
-    const dependencies = { getEnv: () => authEnv(), getSession: vi.fn(async () => ({ user: { id: "subject" }, expiresAt: Date.now() + 60_000 })) };
+    const dependencies = { getEnv: () => authEnv(), getSession: vi.fn(async () => ({ user: { id: "subject" }, expiresAt: Date.now() + 60_000, stale: false })) };
     const handler = createBffHandler({ method: "GET", input: query, output: schema, execute }, dependencies);
     const response = await handler(new Request("https://app.test/api/example?q=ana&status=a&status=b"));
     expect(response.status).toBe(200);
@@ -108,7 +106,7 @@ describe("HTTP and BFF security", () => {
   it("re-checks the route permission before executing", async () => {
     const execute = vi.fn(async () => ({ label: "ok" }));
     const assertPermission = vi.fn(async () => { throw new HttpError(403, "AUTHORIZATION_FORBIDDEN"); });
-    const dependencies = { getEnv: () => authEnv(), getSession: vi.fn(async () => ({ user: { id: "subject" }, expiresAt: Date.now() + 60_000 })), assertPermission };
+    const dependencies = { getEnv: () => authEnv(), getSession: vi.fn(async () => ({ user: { id: "subject" }, expiresAt: Date.now() + 60_000, stale: false })), assertPermission };
     const handler = createBffHandler({ method: "POST", permission: "member:invite", input: schema, output: schema, execute }, dependencies);
     const response = await handler(new Request("https://app.test/api/example", { method: "POST", headers: { origin: "https://app.test", "Content-Type": "application/json" }, body: '{"label":"valid"}' }));
     expect(response.status).toBe(403);

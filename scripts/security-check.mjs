@@ -14,7 +14,8 @@ for (const path of source.filter(path => /\.(ts|tsx)$/u.test(path))) {
   if (!["src/config/env.ts", "src/instrumentation.ts"].includes(path)) assert.doesNotMatch(content, /process\.env/u, "Decentralized env: " + path);
   if (/^["']use client["']/u.test(content)) assert.doesNotMatch(content, /@\/server|@\/config\/env/u, "Client imports server code: " + path);
 }
-const markers = ["OIDC_CLIENT_SECRET", "GINGA_IDENTITY_CLIENT_SECRET", "ginga-build-secret-canary-24f6c4f0", "test-only-e2e-secret"];
+const markers = ["OIDC_CLIENT_SECRET", "SESSION_SECRETS", "GINGA_IDENTITY_CLIENT_SECRET", "ginga-build-secret-canary-24f6c4f0", "test-only-e2e-secret", "dGVzdC1vbmx5LWJ1aWxkLXNlc3Npb24ta2V5LTMyYiE"];
+if (process.env.SESSION_SECRETS) markers.push(...process.env.SESSION_SECRETS.split(","));
 if (process.env.OIDC_CLIENT_SECRET) markers.push(process.env.OIDC_CLIENT_SECRET);
 const chunks = await files(".next/static");
 assert.ok(chunks.length, "Build before running security:check");

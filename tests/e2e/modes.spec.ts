@@ -83,7 +83,9 @@ test("production profile, CSP, cookie and unauthenticated boundaries", async ({ 
     expect(authorization.searchParams.has("client_secret")).toBe(false);
     const cookie = (await page.context().cookies()).find(item => item.name === "__Host-ginga_transaction")!;
     expect(cookie).toMatchObject({ secure: true, httpOnly: true, sameSite: "Lax" });
-    expect(cookie.value).toHaveLength(43);
+    // Sealed (JWE compact: 5 segments, A256GCM); state, nonce and PKCE verifier are unreadable in the browser.
+    expect(cookie.value.split(".")).toHaveLength(5);
+    expect(cookie.value).not.toContain(authorization.searchParams.get("state")!);
     const denied = await request.get("/auth/callback?code=attacker&state=wrong&iss=https://evil.test", { maxRedirects: 0 });
     expect(denied.headers()["location"]).toContain("reason=invalid");
     expect(denied.headers()["set-cookie"]).not.toContain("__Host-ginga_session=");

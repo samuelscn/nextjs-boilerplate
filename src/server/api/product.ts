@@ -13,7 +13,7 @@ import { authService } from "../auth";
 import { log } from "../logging";
 
 // Paths and output schemas are selected by server code, never a browser URL parameter.
-export function createProductClient(base: string, token: () => Promise<string>, transport: typeof fetch = fetch, invalidate: () => void = () => {}) {
+export function createProductClient(base: string, token: () => Promise<string>, transport: typeof fetch = fetch) {
   return async function request<T>(path: string, schema: z.ZodType<T>, options: {
     method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
     body?: unknown; query?: URLSearchParams; requestId: string;
@@ -35,7 +35,6 @@ export function createProductClient(base: string, token: () => Promise<string>, 
         signal: AbortSignal.timeout(10_000),
       }); } catch { throw new NetworkError(id); }
       upstreamId = correlationId(response.headers) ?? id;
-      if (response.status === 401) invalidate();
       if (!response.ok) throw await normalizeApiError(response, upstreamId);
       const data = await readJson(response, schema);
       // Schemas must project allowed fields. Also reject accidental credential reflection.
@@ -57,5 +56,7 @@ export async function productRequest<T>(path: string, schema: z.ZodType<T>, opti
   // Authentication precedes any external operation or config-dependent response.
   await auth.accessToken(id);
   if (!env.PRODUCT_API_URL) throw new HttpError(503, "product_api_not_configured");
-  return createProductClient(env.PRODUCT_API_URL, () => auth.accessToken(id), fetch, () => { if (id) auth.invalidate(id); })(path, schema, options);
+  // The sealed session cannot be cleared from a render; an upstream 401 surfaces as an error and the next
+  // request renews or ends the session in the proxy.
+  return createProductClient(env.PRODUCT_API_URL, () => auth.accessToken(id), fetch)(path, schema, options);
 }

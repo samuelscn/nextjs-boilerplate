@@ -2,13 +2,13 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 import { exportJWK, generateKeyPair, SignJWT } from "jose";
 import { createIdentityClient } from "@/server/auth/oidc";
 import { authEnv } from "./helpers";
-import type { Transaction } from "@/server/session/store";
+import type { Transaction } from "@/server/session/records";
 
 describe("real openid-client validation at the HTTP boundary", () => {
   let keys: Awaited<ReturnType<typeof generateKeyPair>>;
   beforeAll(async () => { keys = await generateKeyPair("RS256"); });
   const env = authEnv();
-  const transaction: Transaction = { state: "expected-state", nonce: "expected-nonce", verifier: "a".repeat(43), returnTo: "/app", expiresAt: Date.now() + 600_000 };
+  const transaction: Transaction = { state: "expected-state", nonce: "expected-nonce", verifier: "a".repeat(43), returnTo: "/app" };
   async function fixture(overrides: { nonce?: string; issuer?: string; audience?: string; sub?: string; signature?: boolean; discoveryIssuer?: string } = {}) {
     const now = Math.floor(Date.now() / 1000);
     const signingKey = overrides.signature === false ? (await generateKeyPair("RS256")).privateKey : keys.privateKey;

@@ -25,7 +25,8 @@ jobs:
       OIDC_CLIENT_ID: ${{ matrix.kind != 'public' && 'build-client' || '' }}
       OIDC_CLIENT_SECRET: ${{ matrix.kind != 'public' && 'ginga-build-secret-canary-24f6c4f0' || '' }}
       OIDC_AUDIENCE: ${{ matrix.kind != 'public' && 'https://api.test' || '' }}
-      SESSION_SINGLE_PROCESS: ${{ matrix.kind != 'public' && 'true' || '' }}
+      # Public build-only key (same canary as scripts/test-modes.mjs); real keys live in the deploy environment.
+      SESSION_SECRETS: ${{ matrix.kind != 'public' && 'dGVzdC1vbmx5LWJ1aWxkLXNlc3Npb24ta2V5LTMyYiE' || '' }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:

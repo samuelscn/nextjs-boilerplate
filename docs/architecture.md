@@ -47,7 +47,7 @@ O CSS Tailwind 4.3.3 dos componentes já foi compilado pelo DS. A aplicação us
 
 Public usa renderização dinâmica para uma CSP com nonce por resposta, assim como os perfis autenticados. Exportação estática/ISR não é um modo suportado desta entrega. Uma futura capability estática exigirá política de hashes/headers no host, testes e uma decisão explícita; não ativar SRI experimental apenas para contornar isso.
 
-Sessões em memória servem a um único processo Node. São perdidas em restart, sem armazenamento de tokens em disco ou cookies. Em produção, `SESSION_SINGLE_PROCESS=true` declara essa topologia. Réplicas, PM2 cluster, serverless e edge exigem primeiro substituir o store e a exclusão mútua de refresh por mecanismo compartilhado. Não basta sticky session.
+Sessões são seladas no cookie (JWE A256GCM) e não dependem de memória ou store no servidor: sobrevivem a restart e funcionam com réplicas e serverless (Vercel). O refresh acontece no `proxy`; a concorrência entre instâncias é resolvida pela janela de reuso de refresh token do Ginga Identity. Detalhes em `docs/authentication.md`.
 
 Não há client-side RBAC, tenant engine, analytics, state manager global ou domínio de exemplo. Password, MFA e políticas de autenticação forte pertencem ao Identity. A organização de `server/auth` permite futura extração de `@ginga/auth-next`, após uso real; nenhum pacote de auth foi criado agora.
 

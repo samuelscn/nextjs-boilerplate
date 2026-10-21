@@ -23,7 +23,7 @@
 | XSS | React escaping, sem HTML externo, CSP com nonce, inputs Zod | Sanitizar HTML caso um produto introduza essa capacidade |
 | SSRF | Host/base configurados; caminhos restritos; redirects externos negados; Discovery/JWKS same-origin | Proteger configuração, DNS e egress; não usar URLs remotas vindas do browser |
 | Open redirect | Caminhos internos conservadores; endpoints Identity validados | Novos destinos precisam revisão |
-| Session theft | Cookie opaco HttpOnly/Secure/host-only; TTL absoluto; tokens em memória | TLS, segurança do processo/host e ingress |
+| Session theft | Cookie selado (JWE A256GCM) HttpOnly/Secure/host-only; TTL absoluto que o refresh não estende; chaves por ambiente com rotação | TLS, sigilo de `SESSION_SECRETS`, segurança do host e ingress; revogação vale no próximo refresh (até 5 min) |
 | Leakage/cache | DTO mínimo; no-store; nenhuma credencial em RSC; schemas de saída | Não adicionar use cache ou caches compartilhados sobre dados privados |
 | DoS | Limites de memória/body/resposta; timeouts; refresh único por sessão | Rate limit, timeout de leitura e limite de conexão no ingress |
 | Supply chain | Pins, lockfile, npm audit, Dependency Review, CodeQL, Actions por SHA | Revisão humana, registry privado e controle de acesso |
@@ -44,7 +44,7 @@ A CSP com nonce torna páginas dinâmicas e incompatíveis com CDN cache de HTML
 
 Cookies __Host-* em HTTPS/produção, sem Domain, Path=/, HttpOnly, Secure e SameSite=Lax. Em HTTP local fora de produção, nomes sem prefixo e sem Secure. Max-Age da transação: 600 segundos. Sessão: no máximo 8 horas. Não existe cookie compartilhado entre produtos e Identity.
 
-Tokens em memória são proporcionalmente simples, mas não sobrevivem a restart e não suportam múltiplos processos, serverless ou réplicas. Configuração de produção exige reconhecimento da topologia com SESSION_SINGLE_PROCESS. Não copiar a implementação para um cluster sem store/lock compartilhados.
+Sessão selada no cookie não exige store e suporta réplicas e serverless. Custos aceitos: quem obtém `SESSION_SECRETS` forja sessões daquela aplicação (chaves só no ambiente, nunca no repositório, uma por ambiente e aplicação); um cookie copiado vale até o teto absoluto ou até o próximo refresh falhar; não há revogação instantânea da sessão do front (a Product API autoriza cada chamada).
 
 Logout local invalida imediatamente. Revogação remota é best effort e falhas são registradas sem token. Ausência de back-channel logout significa que encerramento da sessão Identity não necessariamente remove a sessão local até refresh/expiração. Veja [autenticação](authentication.md).
 

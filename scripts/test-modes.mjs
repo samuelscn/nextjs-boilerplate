@@ -7,7 +7,7 @@ for (const kind of ["app", "backoffice", "public"]) {
   if (kind !== "public") Object.assign(env, {
     OIDC_ISSUER: "https://identity.test/api/auth", OIDC_CLIENT_ID: "build-client",
     OIDC_CLIENT_SECRET: "ginga-build-secret-canary-24f6c4f0",
-    OIDC_AUDIENCE: "https://api.test", OIDC_ALLOW_HTTP: "false", SESSION_SINGLE_PROCESS: "true",
+    OIDC_AUDIENCE: "https://api.test", OIDC_ALLOW_HTTP: "false", SESSION_SECRETS: "dGVzdC1vbmx5LWJ1aWxkLXNlc3Npb24ta2V5LTMyYiE",
   });
   console.log("Production build for capability: " + kind);
   const result = spawnSync("npm", ["run", "build"], { env, stdio: "inherit", shell: process.platform === "win32" });

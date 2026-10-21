@@ -30,7 +30,7 @@ Ajuste APP_KIND em .env.local. Auth/backoffice exigem registro de application no
 
 Next 16.3.5, React 19.3.0, TypeScript strict, Ginga UI 0.1.7, Zod, RHF e TanStack Query. Versões críticas exatas, npm lockfile e política stable/supported/patched/tested. [Decisões e versões](docs/dependencies.md).
 
-Browser → Next → Product API. Server Components por padrão; browser usa BFF de mesma origem. Ginga Identity autentica por redirect OIDC Authorization Code + PKCE; não recebe senha no Next. Cookie opaco HttpOnly identifica sessão local; access/refresh ficam somente em memória server-side. Product API decide autorização. [Arquitetura](docs/architecture.md) · [Autenticação](docs/authentication.md).
+Browser → Next → Product API. Server Components por padrão; browser usa BFF de mesma origem. Ginga Identity autentica por redirect OIDC Authorization Code + PKCE; não recebe senha no Next. A sessão fica selada (JWE) num cookie HttpOnly que o navegador não lê; sem store no servidor. Product API decide autorização. [Arquitetura](docs/architecture.md) · [Autenticação](docs/authentication.md).
 
 `src/app` contém rotas; `src/config` contém env/capabilities; `src/components` contém composição; `src/lib` contém HTTP/validation/query; `src/server` contém auth/session/BFF; `src/providers` contém providers clientes locais.
 
@@ -81,7 +81,7 @@ APP_URL=https://localhost npm start
 
 O listener é HTTP; HTTPS termina no ingress. Para produção real, use APP_URL correspondente à origem externa e configure env no runtime. Não reutilize configuração HTTP de desenvolvimento em produção. `GET /api/health` é liveness mínimo.
 
-Docker: `APP_URL=https://localhost docker compose up --build -d`. Imagem multi-stage/non-root; Compose read-only/cap_drop, sem .env no contexto. Sessão memory requer apenas um processo/réplica. [Deployment e configuração](docs/creating-a-project.md).
+Docker: `APP_URL=https://localhost docker compose up --build -d`. Imagem multi-stage/non-root; Compose read-only/cap_drop, sem .env no contexto. Sessão selada no cookie: réplicas e serverless suportados. [Deployment e configuração](docs/creating-a-project.md).
 
 ## Qualidade, CI e segurança
 
@@ -89,7 +89,7 @@ CI verifica public/app/backoffice com npm ci, lint, typecheck, testes, build, se
 
 CSP com nonce, HSTS de produção, cookies seguros, CSRF por Origin, URLs restritas, DTOs validados, no-store e logs allowlisted. Sem RBAC/tenant engine, analytics ou state manager global. [Segurança e threat boundaries](docs/security.md) · [Vulnerabilidades](SECURITY.md).
 
-CSP estrita requer renderização dinâmica, inclusive em public; static export não está habilitado. Session store atual não suporta serverless/réplicas e perde sessões ao reiniciar. Testes isolados não substituem homologação com Identity real. [Limites e contrato de auth](docs/authentication.md).
+CSP estrita requer renderização dinâmica, inclusive em public; static export não está habilitado. Revogação da sessão do front vale no próximo refresh (até 5 minutos). Testes isolados não substituem homologação com Identity real. [Limites e contrato de auth](docs/authentication.md).
 
 ## Documentação
 

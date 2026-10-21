@@ -30,7 +30,7 @@ Siga a configuração autenticada com APP_KIND=backoffice. O perfil já nasce co
 
 ## Produção
 
-APP_URL é a origem HTTPS externa. Não use .env.local de desenvolvimento como configuração de produção. Em auth/backoffice, SESSION_SINGLE_PROCESS=true declara a única topologia suportada pelo store atual. Injete todas as variáveis necessárias no ambiente de build quando validar um perfil e no runtime. O Docker faz build público sem secrets e seleciona o perfil no runtime.
+APP_URL é a origem HTTPS externa. Não use .env.local de desenvolvimento como configuração de produção. Em auth/backoffice, defina `SESSION_SECRETS` (chave própria por ambiente e aplicação; gere com `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`). Injete todas as variáveis necessárias no ambiente de build quando validar um perfil e no runtime. O Docker faz build público sem secrets e seleciona o perfil no runtime.
 
 ```sh
 APP_URL=https://localhost npm run build
@@ -43,7 +43,7 @@ Esses comandos usam uma origem local HTTPS de smoke: o listener Node continua HT
 APP_URL=https://localhost docker compose up --build -d
 ```
 
-Compose expõe apenas 127.0.0.1:3000, usa non-root/read-only/cap_drop e precisa de TLS ingress. Para um host externo configure sua origem real. Não copiar .env para imagem. Para replicas/serverless, primeiro substitua o store/refresh lock: a configuração atual não suporta isso.
+Compose expõe apenas 127.0.0.1:3000, usa non-root/read-only/cap_drop e precisa de TLS ingress. Para um host externo configure sua origem real. Não copiar .env para imagem. Réplicas e serverless são suportados: a sessão é selada no cookie, sem store.
 
 ## Antes de publicar o produto
 

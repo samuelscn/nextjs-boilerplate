@@ -7,12 +7,30 @@ import { internalReturnPath } from "@/lib/validation/urls";
 import { assertSameOrigin } from "../security/csrf";
 import { errorResponse, requestId } from "../http";
 import { log } from "../logging";
-import { SessionStore, type SessionRecord } from "../session/store";
+import { seal, unseal, type SealKey } from "../session/seal";
+import { sessionSchema, transactionSchema, type SessionRecord, type Tokens } from "../session/records";
 import type { IdentityClient } from "./oidc";
 
 export type PublicSession = { user: { id: string }; expiresAt: number };
+// Outcome of the refresh done by the proxy (or /auth/refresh) before rendering: Server Components cannot write cookies.
+export type Renewal = { kind: "unchanged" } | { kind: "renewed"; value: string; maxAge: number } | { kind: "ended" };
 
-export function createAuthService(env: AuthEnvironment, store: SessionStore, identity: IdentityClient, now: () => number = Date.now) {
+// The proxy renews this long before expiry, so a render that started after it never sees an expired token.
+const RENEW_MARGIN = 60_000;
+// Below this a Server Component treats the session as stale and sends the user through /auth/refresh.
+const STALE_MARGIN = 30_000;
+// One cookie (~4 KB browser limit) with room for name and attributes.
+const MAX_COOKIE = 3800;
+
+// Renewal only for requests whose response the browser will keep: never prefetches (often aborted or discarded),
+// static files, or navigations started by another site.
+export const crossSite = (request: NextRequest) => request.headers.get("sec-fetch-site") === "cross-site";
+export function shouldRenew(request: NextRequest, path: string) {
+  const prefetch = request.headers.has("next-router-prefetch") || /prefetch/iu.test(request.headers.get("purpose") ?? request.headers.get("sec-purpose") ?? "");
+  return !path.startsWith("/auth/") && !/\.[a-z0-9]+$/iu.test(path) && !prefetch && !crossSite(request);
+}
+
+export function createAuthService(env: AuthEnvironment, keys: SealKey[], identity: IdentityClient, now: () => number = Date.now) {
   const secure = env.NODE_ENV === "production" || env.APP_URL.startsWith("https:");
   const sessionCookie = secure ? "__Host-ginga_session" : "ginga_session";
   const transactionCookie = secure ? "__Host-ginga_transaction" : "ginga_transaction";
@@ -23,43 +41,63 @@ export function createAuthService(env: AuthEnvironment, store: SessionStore, ide
     response.headers.set("Cache-Control", "private, no-store");
     return response;
   };
-  async function record(id: string | undefined): Promise<SessionRecord | null> {
-    const existing = store.get(id);
-    if (!id || !existing) return null;
-    if (existing.accessExpiresAt > now() + 30_000) return existing;
-    const pending = store.refreshes.get(id);
+  const read = (value: string | undefined, options?: { ignoreExpiry?: boolean }) => unseal(value, keys, sessionSchema, now(), options);
+  const maxAge = (record: SessionRecord) => Math.max(0, Math.floor((record.expiresAt - now()) / 1000));
+  async function sealSession(tokens: Tokens, expiresAt: number) {
+    const value = await seal({ v: 1, ...tokens, expiresAt }, keys, expiresAt, now());
+    if (value.length > MAX_COOKIE) { log("session.too_large"); throw new Error("Session too large"); }
+    return value;
+  }
+  // Concurrent requests of one instance carrying the same cookie share a single refresh; across instances the
+  // Identity's reuse window replays the same response. Entries live only while the refresh is in flight.
+  const inflight = new Map<string, Promise<Renewal>>();
+  function renew(value: string | undefined): Promise<Renewal> {
+    if (!value) return Promise.resolve({ kind: "unchanged" });
+    const pending = inflight.get(value);
     if (pending) return pending;
-    const refreshToken = existing.refreshToken;
-    if (!refreshToken) { store.destroy(id); return null; }
-    const refresh = Promise.resolve().then(async () => {
-      try {
-        const tokens = await identity.refresh(refreshToken, existing.subject);
-        if (tokens.subject !== existing.subject || tokens.accessExpiresAt <= now() + 30_000) throw new Error("Invalid refresh");
-        const next = { ...tokens, expiresAt: existing.expiresAt };
-        if (store.replace(id, existing, next)) return next;
-        if (tokens.refreshToken) await identity.revoke(tokens.refreshToken);
-        return null;
-      } catch {
-        store.destroy(id);
-        log("session.refresh_failed");
-        return null;
-      }
-    }).finally(() => { store.refreshes.delete(id); });
-    store.refreshes.set(id, refresh);
-    return refresh;
+    const renewal = renewOnce(value).finally(() => inflight.delete(value));
+    inflight.set(value, renewal);
+    return renewal;
+  }
+  async function renewOnce(value: string): Promise<Renewal> {
+    const record = await read(value);
+    if (!record) return { kind: "ended" };
+    if (record.accessExpiresAt > now() + RENEW_MARGIN) return { kind: "unchanged" };
+    if (!record.refreshToken) return { kind: "ended" };
+    try {
+      // Parallel instances may present the same refresh token: the Identity replays the same response
+      // inside its reuse window (refreshTokenReuseInterval), so no shared lock is needed here.
+      const tokens = await identity.refresh(record.refreshToken, record.subject);
+      if (tokens.subject !== record.subject || tokens.accessExpiresAt <= now() + STALE_MARGIN) throw new Error("Invalid refresh");
+      const next = await sealSession(tokens, record.expiresAt);
+      return { kind: "renewed", value: next, maxAge: maxAge(record) };
+    } catch {
+      log("session.refresh_failed");
+      return { kind: "ended" };
+    }
+  }
+  function applyRenewal(response: NextResponse, renewal: Renewal) {
+    if (renewal.kind === "renewed") response.cookies.set(sessionCookie, renewal.value, { ...attributes, maxAge: renewal.maxAge });
+    if (renewal.kind === "ended") response.cookies.set(sessionCookie, "", { ...attributes, maxAge: 0 });
+    return response;
   }
   return {
     sessionCookie,
-    async getSession(id: string | undefined): Promise<PublicSession | null> {
-      const session = await record(id);
-      return session ? { user: { id: session.subject }, expiresAt: session.expiresAt } : null;
+    renew,
+    applyRenewal,
+    // Read-only: never refreshes, because a refreshed token could not be persisted from a Server Component.
+    async getSession(value: string | undefined): Promise<(PublicSession & { stale: boolean }) | null> {
+      const record = await read(value);
+      if (!record) return null;
+      const stale = record.accessExpiresAt <= now() + STALE_MARGIN;
+      if (stale && !record.refreshToken) return null;
+      return { user: { id: record.subject }, expiresAt: record.expiresAt, stale };
     },
-    async accessToken(id: string | undefined): Promise<string> {
-      const session = await record(id);
-      if (!session) throw new HttpError(401, "unauthorized");
-      return session.accessToken;
+    async accessToken(value: string | undefined): Promise<string> {
+      const record = await read(value);
+      if (!record || record.accessExpiresAt <= now() + 5_000) throw new HttpError(401, "unauthorized");
+      return record.accessToken;
     },
-    invalidate(id: string) { store.destroy(id); },
     async login(request: NextRequest) {
       const id = requestId(request);
       try {
@@ -67,11 +105,9 @@ export function createAuthService(env: AuthEnvironment, store: SessionStore, ide
         const transaction = { state: oidc.randomState(), nonce: oidc.randomNonce(), verifier: oidc.randomPKCECodeVerifier(),
           returnTo: internalReturnPath(request.nextUrl.searchParams.get("returnTo"), home) };
         const destination = await identity.authorization(transaction);
-        const old = request.cookies.get(transactionCookie)?.value;
-        if (old) store.consume(old);
-        const handle = store.begin(transaction);
+        const sealed = await seal({ v: 1, ...transaction }, keys, now() + 600_000, now());
         const response = privateRedirect(destination.href);
-        response.cookies.set(transactionCookie, handle, { ...attributes, maxAge: 600 });
+        response.cookies.set(transactionCookie, sealed, { ...attributes, maxAge: 600 });
         log("auth.login", { requestId: id });
         return response;
       } catch (error) {
@@ -82,7 +118,8 @@ export function createAuthService(env: AuthEnvironment, store: SessionStore, ide
     },
     async callback(request: NextRequest) {
       const id = requestId(request);
-      const transaction = store.consume(request.cookies.get(transactionCookie)?.value);
+      // One-time use comes from the Identity (single-use code bound to PKCE) and from clearing the cookie below.
+      const transaction = await unseal(request.cookies.get(transactionCookie)?.value, keys, transactionSchema, now());
       let response: NextResponse;
       try {
         const params = request.nextUrl.searchParams;
@@ -92,12 +129,13 @@ export function createAuthService(env: AuthEnvironment, store: SessionStore, ide
         const callback = new URL(env.APP_URL + "/auth/callback");
         callback.search = params.toString();
         const tokens = await identity.exchange(callback, transaction);
-        if (tokens.accessExpiresAt <= now() + 30_000) throw new Error("Expired access");
-        const handle = store.create(tokens, env.SESSION_TTL_SECONDS);
-        const previous = request.cookies.get(sessionCookie)?.value;
-        if (previous) store.destroy(previous);
+        if (tokens.accessExpiresAt <= now() + STALE_MARGIN) throw new Error("Expired access");
+        const value = await sealSession(tokens, now() + env.SESSION_TTL_SECONDS * 1000);
+        // The replaced session must not stay usable from a copied cookie: revoke its refresh token (best effort).
+        const previous = await read(request.cookies.get(sessionCookie)?.value, { ignoreExpiry: true });
+        if (previous?.refreshToken) await identity.revoke(previous.refreshToken).catch(() => log("auth.revocation_failed", { requestId: id }));
         response = privateRedirect(transaction.returnTo);
-        response.cookies.set(sessionCookie, handle, { ...attributes, maxAge: env.SESSION_TTL_SECONDS });
+        response.cookies.set(sessionCookie, value, { ...attributes, maxAge: env.SESSION_TTL_SECONDS });
       } catch {
         log("auth.callback_denied", { requestId: id });
         response = privateRedirect("/auth/error?reason=invalid");
@@ -105,16 +143,23 @@ export function createAuthService(env: AuthEnvironment, store: SessionStore, ide
       response.cookies.set(transactionCookie, "", { ...attributes, maxAge: 0 });
       return response;
     },
+    // Fallback for renders the proxy did not renew: refresh, write the cookie and go back.
+    async refresh(request: NextRequest) {
+      const returnTo = internalReturnPath(request.nextUrl.searchParams.get("returnTo"), home);
+      // Another site must not force a rotation (an aborted response would lose the new token): it goes through login.
+      if (crossSite(request)) return privateRedirect("/auth/login?returnTo=" + encodeURIComponent(returnTo));
+      const renewal = await renew(request.cookies.get(sessionCookie)?.value);
+      if (renewal.kind === "ended" || !request.cookies.get(sessionCookie)?.value) {
+        return applyRenewal(privateRedirect("/auth/login?returnTo=" + encodeURIComponent(returnTo)), renewal);
+      }
+      return applyRenewal(privateRedirect(returnTo), renewal);
+    },
     async logout(request: NextRequest) {
       const id = requestId(request);
       try { assertSameOrigin(request, env.APP_URL); }
       catch (error) { return errorResponse(error, id); }
-      const handle = request.cookies.get(sessionCookie)?.value;
-      const session = store.get(handle);
-      if (handle) store.destroy(handle);
-      // A refresh already in flight must never resurrect the session.
-      const pending = handle ? store.refreshes.get(handle) : undefined;
-      if (pending) await pending;
+      // Revoke even an expired session: its refresh token may still be valid at the Identity.
+      const session = await read(request.cookies.get(sessionCookie)?.value, { ignoreExpiry: true });
       if (session?.refreshToken) {
         try { await identity.revoke(session.refreshToken); }
         catch { log("auth.revocation_failed", { requestId: id }); }

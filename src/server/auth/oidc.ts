@@ -2,10 +2,10 @@ import "server-only";
 import * as oidc from "openid-client";
 import { createRemoteJWKSet, customFetch, jwtVerify } from "jose";
 import type { AuthEnvironment } from "@/config/schema";
-import type { Tokens, Transaction } from "../session/store";
+import type { Tokens, Transaction } from "../session/records";
 
 export interface IdentityClient {
-  authorization(transaction: Omit<Transaction, "expiresAt" | "returnTo">): Promise<URL>;
+  authorization(transaction: Omit<Transaction, "returnTo">): Promise<URL>;
   exchange(url: URL, transaction: Transaction): Promise<Tokens>;
   refresh(refreshToken: string, subject: string): Promise<Tokens>;
   revoke(refreshToken: string): Promise<void>;

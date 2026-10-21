@@ -39,7 +39,7 @@ Next 16.2.6 recebido estava vulnerável. O [release de segurança de agosto](htt
 
 React 19.3.0 é estável e necessário ao DS 0.1.7, não uma atualização por número. [Versões React](https://react.dev/versions) e [advisories React](https://github.com/react/react/security/advisories). Node 24 é Active LTS segundo [calendário oficial](https://github.com/nodejs/Release). [Suporte ESLint](https://eslint.org/version-support/).
 
-O cliente escolhido oferece as funções necessárias sem se tornar IdP: [openid-client](https://github.com/panva/openid-client), [segurança](https://github.com/panva/openid-client/security). Auth.js não foi necessário; Axios não oferece benefício ao fetch nativo. Se o store exigir escala, trocar o adapter/lock conforme a topologia; não substituir tokens server-side por cookies contendo tokens.
+O cliente escolhido oferece as funções necessárias sem se tornar IdP: [openid-client](https://github.com/panva/openid-client), [segurança](https://github.com/panva/openid-client/security). Auth.js não foi necessário; Axios não oferece benefício ao fetch nativo. `jose` também sela a sessão no cookie (JWE A256GCM), dispensando store e lock compartilhados.
 
 ## Auditoria
 

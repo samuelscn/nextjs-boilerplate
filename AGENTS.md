@@ -18,14 +18,14 @@ Comece por docs/ai-playbook.md (preciso de X → vá em Y) e use as skills de .c
 - Server Components são o padrão; providers clientes devem estar no menor subtree possível.
 - Use @ginga/ui (pacote oficial @ginga-software/ui); não copie primitives nem execute shadcn add.
 - Auth exclusivamente por redirect ao Ginga Identity. Password nunca passa pelo produto.
-- Tokens/secrets/sessões são server-only. Nunca serializar em props/RSC, cookies com tokens ou storage do browser.
+- Tokens só no cookie de sessão HttpOnly selado (JWE A256GCM, `src/server/session/seal.ts`, chaves em `SESSION_SECRETS`); nunca em props/RSC, cookies legíveis, storage do browser ou logs. Secrets são server-only.
 - Product API autenticada somente pelo servidor/BFF, base server-only, paths restritos e output Zod.
 - Autentique cada operação; layout/proxy e permissões de UI não são autorização. Permissões adaptam a UI (docs/authorization.md): página checa `can(await getAccess(), p)` antes de buscar dados e renderiza `ForbiddenState`; client usa `<Can>`/`useCan`; BFF declara `permission`; navegação declara `permission`.
 - Não cachear globalmente dados privados. Sem singleton Query no servidor.
 - Valide boundaries com Zod e env em src/config/env.ts; não ler process.env espalhado.
 - Preserve CSRF, CSP, cookies, state/nonce/PKCE e fail closed. Leia docs/security.md para mudanças nesses limites.
 - Rode lint, typecheck, testes e build; alterações de capability/auth exigem testes dos três perfis.
-- Sessão memory só suporta um processo; não prometer serverless/réplicas sem trocar store e refresh lock.
+- Sessão sem estado no servidor: nenhum store/Redis por front. Refresh só no `proxy` (ou `/auth/refresh`); Server Components só leem a sessão.
 - I18n é Core obrigatório: todo texto/aria-label de UI deve ser traduzível, via namespaces em messages e next-intl. DS recebe labels/children, nunca depende de next-intl.
 - Product API errors seguem RFC 9457 (Problem Details, docs/error-handling.md). Normalize uma vez; decisões por code/status, nunca por title/detail. Código novo da API exige `npm run api:sync` e tradução em errors.json (pt-BR e en).
 - Funcionalidade nova ou arriscada nasce atrás de feature flag registrada em src/config/flags.ts (docs/feature-flags.md). Flag decide se existe; permissão decide quem pode.

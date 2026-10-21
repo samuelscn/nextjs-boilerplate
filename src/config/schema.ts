@@ -3,6 +3,7 @@ import template from "../../template.config.json";
 import { safeServiceUrl } from "../lib/validation/urls";
 import { supportedLocales, defaultLocale } from "../i18n/config";
 import { parseFlags } from "./flags";
+import { parseSealKeys } from "../server/session/seal";
 
 const flag = z.enum(["true", "false"]).transform(value => value === "true");
 const core = z.object({
@@ -22,8 +23,8 @@ const auth = z.object({
   OIDC_AUDIENCE: z.string().min(1),
   OIDC_ALLOW_HTTP: flag.default(false),
   OIDC_MAX_AGE: z.coerce.number().int().min(0).max(86400).optional(),
-  SESSION_STORE: z.literal("memory").default("memory"),
-  SESSION_SINGLE_PROCESS: flag.default(false),
+  // Comma-separated base64url 32-byte keys sealing the session cookie; the first seals, all open (rotation).
+  SESSION_SECRETS: z.string().min(43).max(2048),
   SESSION_TTL_SECONDS: z.coerce.number().int().min(300).max(28800).default(28800),
   PRODUCT_API_URL: z.string().optional(),
   // Data source of Product API operations: in-process mock adapters or the real API.
@@ -55,7 +56,7 @@ export function parseEnv(input: Record<string, string | undefined>) {
     if (value.PRODUCT_API_URL && (!safeServiceUrl(value.PRODUCT_API_URL, !production) || new URL(value.PRODUCT_API_URL).search)) issue("PRODUCT_API_URL");
     if (value.OIDC_CLIENT_TYPE === "confidential" && !value.OIDC_CLIENT_SECRET) issue("OIDC_CLIENT_SECRET");
     if (value.OIDC_CLIENT_TYPE === "public" && value.OIDC_CLIENT_SECRET) issue("OIDC_CLIENT_SECRET");
-    if (production && !value.SESSION_SINGLE_PROCESS) issue("SESSION_SINGLE_PROCESS");
+    try { parseSealKeys(value.SESSION_SECRETS); } catch { issue("SESSION_SECRETS"); }
     if (production && value.API_MODE === "mock") issue("API_MODE");
   }).safeParse(normalized);
   if (!result.success) throw configError(result.error);

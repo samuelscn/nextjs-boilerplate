@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseEnv } from "@/config/schema";
 import { capabilities } from "@/config/capabilities";
-import { authEnv } from "./helpers";
+import { authEnv, rotatedSessionSecret, testSessionSecret } from "./helpers";
 
 describe("capability environment", () => {
   it("public needs no Identity runtime config and discards secrets", () => {
@@ -23,17 +23,19 @@ describe("capability environment", () => {
     expect(() => authEnv({ OIDC_CLIENT_SECRET: "" })).toThrow("OIDC_CLIENT_SECRET");
     expect(authEnv({ OIDC_CLIENT_TYPE: "public", OIDC_CLIENT_SECRET: "" }).OIDC_CLIENT_TYPE).toBe("public");
   });
-  it("requires HTTPS and explicit single-process deployment in production", () => {
-    expect(() => authEnv({ NODE_ENV: "production" })).toThrow("SESSION_SINGLE_PROCESS");
-    expect(() => authEnv({ NODE_ENV: "production", SESSION_SINGLE_PROCESS: "true", OIDC_ALLOW_HTTP: "true" })).toThrow();
+  it("requires HTTPS in production and valid session keys", () => {
+    expect(() => authEnv({ NODE_ENV: "production", OIDC_ALLOW_HTTP: "true" })).toThrow();
     expect(() => parseEnv({ NODE_ENV: "production" })).toThrow("APP_URL");
-    expect(authEnv({ NODE_ENV: "production", SESSION_SINGLE_PROCESS: "true" }).NODE_ENV).toBe("production");
+    expect(authEnv({ NODE_ENV: "production" }).NODE_ENV).toBe("production");
+    expect(() => authEnv({ SESSION_SECRETS: "" })).toThrow("SESSION_SECRETS");
+    expect(() => authEnv({ SESSION_SECRETS: "c2hvcnQta2V5LW9ubHktMTYtYnl0ZXMhIQ-too-short-for-aes" })).toThrow("SESSION_SECRETS");
+    expect(authEnv({ SESSION_SECRETS: rotatedSessionSecret + "," + testSessionSecret }).SESSION_SECRETS).toContain(",");
   });
   it("defaults to mock data outside production and refuses mock in production", () => {
     expect(authEnv().API_MODE).toBe("mock");
     expect(authEnv({ API_MODE: "live" }).API_MODE).toBe("live");
-    expect(authEnv({ NODE_ENV: "production", SESSION_SINGLE_PROCESS: "true" }).API_MODE).toBe("live");
-    expect(() => authEnv({ NODE_ENV: "production", SESSION_SINGLE_PROCESS: "true", API_MODE: "mock" })).toThrow("API_MODE");
+    expect(authEnv({ NODE_ENV: "production" }).API_MODE).toBe("live");
+    expect(() => authEnv({ NODE_ENV: "production", API_MODE: "mock" })).toThrow("API_MODE");
   });
   it.each(["https://user:secret@app.test", "https://app.test/path", "https://app.test/#fragment", "//app.test", "javascript:alert(1)"])("rejects unsafe origin %s", APP_URL => {
     expect(() => parseEnv({ APP_URL })).toThrow();
