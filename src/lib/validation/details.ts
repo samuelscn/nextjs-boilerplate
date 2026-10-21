@@ -11,6 +11,6 @@ export function validationDetails(error: z.ZodError): ApiErrorDetail[] {
       if (issue.format === "uuid") code = "IS_UUID";
     }
     const field = issue.path.map(String).join(".");
-    return { ...(field && field.length <= 128 ? { field } : {}), code, message: code };
+    return { ...(field && field.length <= 128 ? { field } : {}), code };
   });
 }

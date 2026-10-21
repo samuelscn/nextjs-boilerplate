@@ -23,8 +23,8 @@ const render = (ui: React.ReactNode, locale: Locale = "pt-BR") => renderUI(<Next
 describe("own components and integration with Ginga UI", () => {
   it("validates and renders server errors in English", async () => {
     render(<ExampleForm submit={async () => ({ ok: false, error: {
-      statusCode: 400, code: "VALIDATION_ERROR", message: "unsafe message", timestamp: new Date().toISOString(),
-      details: [{ field: "label", code: "MAX_LENGTH", message: "unsafe field" }],
+      status: 400, code: "VALIDATION_ERROR", detail: "unsafe message", timestamp: new Date().toISOString(),
+      errors: [{ field: "label", code: "MAX_LENGTH" }],
     } })} />, "en");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
     expect(await screen.findByText("This field is required.")).toBeVisible();
@@ -35,9 +35,7 @@ describe("own components and integration with Ginga UI", () => {
     expect(screen.queryByText("unsafe field")).not.toBeInTheDocument();
   });
   it.each(["pt-BR", "en"] as const)("offers login only for 401, not 403 (%s)", locale => {
-    const failure = (statusCode: number, code: string) => new ApiError({
-      statusCode, code, message: "secret", requestId: "req_SUPPORT", timestamp: new Date().toISOString(),
-    });
+    const failure = (status: number, code: string) => new ApiError({ status, code, traceId: "req_SUPPORT" });
     const view = render(<ErrorState error={failure(403, "AUTHORIZATION_FORBIDDEN")} />, locale);
     expect(screen.getByRole("alert")).toHaveTextContent(catalogs[locale].errors.AUTHORIZATION_FORBIDDEN);
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
@@ -53,8 +51,8 @@ describe("own components and integration with Ginga UI", () => {
   it("validates, submits and handles server field errors accessibly", async () => {
     const user = userEvent.setup();
     const submit = vi.fn(async (): Promise<ExampleResult> => ({ ok: false, error: {
-      statusCode: 400, code: "VALIDATION_ERROR", message: "Do not render this message", timestamp: new Date().toISOString(),
-      details: [{ field: "label", code: "MAX_LENGTH", message: "Do not render field text" }],
+      status: 400, code: "VALIDATION_ERROR", detail: "Do not render this message", timestamp: new Date().toISOString(),
+      errors: [{ field: "label", code: "MAX_LENGTH" }],
     } }));
     render(<ExampleForm submit={submit} />);
     await user.click(screen.getByRole("button", { name: "Salvar" }));

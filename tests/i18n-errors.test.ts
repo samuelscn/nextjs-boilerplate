@@ -4,7 +4,7 @@ import { z } from "zod";
 import { catalogs } from "@/i18n/catalogs";
 import { defaultLocale, resolveLocale, supportedLocales } from "@/i18n/config";
 import { localizedError, localizedValidation, errorAction } from "@/i18n/errors";
-import { ApiError, apiErrorSchema, errorDto, NetworkError, normalizeFrontendError, normalizeIdentityError, statusCodes } from "@/lib/http/api-error";
+import { ApiError, problemSchema, errorDto, NetworkError, normalizeFrontendError, normalizeIdentityError, statusCodes } from "@/lib/http/api-error";
 import { normalizeApiError } from "@/lib/http/normalize";
 import { validCorrelationId, retryAfterMilliseconds } from "@/lib/http/correlation";
 import { applyFieldErrors } from "@/lib/validation/form-errors";
@@ -14,9 +14,10 @@ import { createProductClient } from "@/server/api/product";
 import { errorResponse, requestId } from "@/server/http";
 import { bffRequest } from "@/lib/http/browser";
 
-const payload = (statusCode = 400, code = "VALIDATION_ERROR") => ({
-  statusCode, code, message: "Internal SQL/password detail must never reach UI",
-  timestamp: "2026-09-14T12:00:00.000Z", requestId: "req_01J_TEST",
+const payload = (status = 400, code = "VALIDATION_ERROR") => ({
+  type: "urn:ginga:problem:" + code.toLowerCase(), title: "Internal SQL/password title", status, code,
+  detail: "Internal SQL/password detail must never reach UI",
+  timestamp: "2026-09-14T12:00:00.000Z", traceId: "req_01J_TEST",
 });
 describe("locale resolution and catalog integrity", () => {
   it("resolves URL, trusted preference, cookie, language and default in order", () => {
@@ -36,18 +37,21 @@ describe("locale resolution and catalog integrity", () => {
 });
 describe("validated API error contract", () => {
   it("validates ISO timestamps, status, detail codes and bounded IDs", () => {
-    expect(apiErrorSchema.safeParse({ ...payload(), details: [{ field: "email", code: "IS_EMAIL", message: "Email" }] }).success).toBe(true);
-    for (const invalid of [{ timestamp: "yesterday" }, { timestamp: "2026-09-14T12:00:00" }, { statusCode: 200 }, { requestId: "x".repeat(129) }, { code: "../PRIVATE" }]) {
-      expect(apiErrorSchema.safeParse({ ...payload(), ...invalid }).success).toBe(false);
+    expect(problemSchema.safeParse({ ...payload(), errors: [{ field: "age", code: "MIN", params: { min: 18 } }] }).success).toBe(true);
+    for (const invalid of [{ timestamp: "yesterday" }, { timestamp: "2026-09-14T12:00:00" }, { status: 200 }, { traceId: "x".repeat(129) }, { code: "../PRIVATE" },
+      { params: { nested: { html: "<b>" } } }, { errors: [{ field: "a", code: "X", params: { a: "x".repeat(300) } }] }]) {
+      expect(problemSchema.safeParse({ ...payload(), ...invalid }).success, JSON.stringify(invalid)).toBe(false);
     }
-    expect(apiErrorSchema.safeParse({ ...payload(), timestamp: "2026-09-14T09:00:00-03:00" }).success).toBe(true);
+    expect(problemSchema.safeParse({ ...payload(), timestamp: "2026-09-14T09:00:00-03:00" }).success).toBe(true);
+    const polluted = problemSchema.parse({ ...payload(), params: JSON.parse('{"__proto__":{"admin":true},"max":3}') as unknown });
+    expect(Object.keys(polluted.params ?? {})).toEqual(["max"]);
   });
   it("normalizes malformed, inconsistent and oversized payloads without leaking text", async () => {
     for (const response of [
       new Response("<html>secret</html>", { status: 500 }),
-      Response.json({ ...payload(400), statusCode: 200 }, { status: 400 }),
+      Response.json({ ...payload(400), status: 200 }, { status: 400 }),
       Response.json(payload(403, "AUTHENTICATION_REQUIRED"), { status: 403 }),
-      Response.json({ ...payload(500), message: "x".repeat(70_000) }, { status: 500 }),
+      Response.json({ ...payload(500), detail: "x".repeat(70_000) }, { status: 500 }),
     ]) {
       const error = await normalizeApiError(response);
       expect(error).toBeInstanceOf(ApiError);
@@ -73,17 +77,20 @@ describe("validated API error contract", () => {
     expect(transport.mock.calls[0]?.[1]?.headers).toMatchObject({ "x-correlation-id": "req_NEXT" });
     const response = errorResponse(failure, "req_NEXT");
     expect(response.headers.get("x-correlation-id")).toBe("req_UPSTREAM");
-    expect(await response.json()).toMatchObject({ code: "RESOURCE_CONFLICT", requestId: "req_UPSTREAM" });
+    expect(response.headers.get("content-type")).toBe("application/problem+json");
+    expect(await response.json()).toMatchObject({ status: 409, code: "RESOURCE_CONFLICT", traceId: "req_UPSTREAM" });
     expect(log.mock.calls.flat().join(" ")).toContain("req_UPSTREAM");
     expect(log.mock.calls.flat().join(" ")).not.toContain("private-access-token");
     log.mockRestore();
   });
   it("strips internal messages/details from 500 and never serializes Error objects", () => {
-    const dto = errorDto(new ApiError({ ...payload(500, "INTERNAL_SERVER_ERROR"), details: [{ field: "password", code: "INVALID_VALUE", message: "private-access-token" }] }));
-    expect(dto.details).toBeUndefined();
-    expect(dto.message).toBe("INTERNAL_SERVER_ERROR");
+    const dto = errorDto(new ApiError({ ...payload(500, "INTERNAL_SERVER_ERROR"), params: { token: "private-access-token" }, errors: [{ field: "password", code: "INVALID_VALUE", params: { value: "private-access-token" } }] }));
+    expect(dto.errors).toBeUndefined();
+    expect(dto.params).toBeUndefined();
+    expect(dto.code).toBe("INTERNAL_SERVER_ERROR");
+    expect(Object.keys(errorDto(new ApiError(payload(409, "RESOURCE_CONFLICT")))).sort()).toEqual(["code", "status", "timestamp", "title", "traceId", "type"]);
     expect(JSON.stringify(dto)).not.toContain("private-access-token");
-    expect(apiErrorSchema.safeParse(errorDto(new Error("private-stack"), "req_A")).success).toBe(true);
+    expect(problemSchema.safeParse(errorDto(new Error("private-stack"), "req_A")).success).toBe(true);
     expect(normalizeFrontendError(new Error("secret")).kind).toBe("unexpected");
     expect(normalizeIdentityError({ code: "BETTER_AUTH_INTERNAL" }).code).toBe("IDENTITY_FLOW_INVALID");
     expect(normalizeIdentityError("unavailable").code).toBe("IDENTITY_UNAVAILABLE");
@@ -97,9 +104,9 @@ describe("validated API error contract", () => {
 describe.each(supportedLocales)("localized error handling (%s)", locale => {
   const translator = createTranslator({ locale, messages: catalogs[locale] });
   type Key = Parameters<typeof translator>[0];
-  const t = Object.assign((key: string) => translator(key as Key), { has: (key: string) => translator.has(key as Key) });
+  const t = Object.assign((key: string, values?: Record<string, string | number>) => translator(key as Key, values), { has: (key: string) => translator.has(key as Key) });
   it("translates all known codes, unknown codes by status and always hides 500 details", () => {
-    for (const [status, code] of Object.entries(statusCodes)) expect(localizedError(new ApiError(payload(Number(status), code)), t)).toBe(t("errors." + code));
+    for (const [status, code] of Object.entries(statusCodes)) expect(localizedError(new ApiError(payload(Number(status), code)), t)).toBe(t("errors." + (Number(status) >= 500 ? "INTERNAL_SERVER_ERROR" : code)));
     expect(localizedError(new ApiError(payload(409, "NEW_DOMAIN_CODE")), t)).toBe(t("errors.RESOURCE_CONFLICT"));
     expect(localizedError(new ApiError(payload(500, "NEW_DOMAIN_CODE")), t)).toBe(t("errors.INTERNAL_SERVER_ERROR"));
     expect(localizedError(new NetworkError(), t)).toBe(t("errors.NETWORK_ERROR"));
@@ -108,15 +115,15 @@ describe.each(supportedLocales)("localized error handling (%s)", locale => {
   it("maps only known fields to RHF using codes, not backend phrases", () => {
     const setError = vi.fn();
     expect(applyFieldErrors<{ email: string }>([
-      { field: "email", code: "IS_EMAIL", message: "Ignore me" },
-      { field: "unknown", code: "IS_NOT_EMPTY", message: "Ignore me" },
-      { field: "__proto__", code: "IS_NOT_EMPTY", message: "Ignore me" },
-      { field: "email", code: "MAX_LENGTH", message: "Ignore duplicate" },
+      { field: "email", code: "IS_EMAIL" },
+      { field: "unknown", code: "IS_NOT_EMPTY" },
+      { field: "__proto__", code: "IS_NOT_EMPTY" },
+      { field: "email", code: "MAX_LENGTH" },
     ], ["email"], setError, t)).toBe(1);
     expect(setError).toHaveBeenCalledExactlyOnceWith("email", { type: "server", message: t("validation.IS_EMAIL") }, { shouldFocus: true });
     const result = z.object({ email: z.email() }).safeParse({ email: "invalid" });
     if (result.success) throw new Error("Expected invalid");
-    expect(validationDetails(result.error)).toEqual([{ field: "email", code: "IS_EMAIL", message: "IS_EMAIL" }]);
+    expect(validationDetails(result.error)).toEqual([{ field: "email", code: "IS_EMAIL" }]);
   });
 });
 describe("status behavior and bounded retry", () => {

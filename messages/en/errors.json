@@ -9,5 +9,11 @@
   "INTERNAL_SERVER_ERROR": "Something went wrong. Please try again.",
   "NETWORK_ERROR": "Unable to connect. Check your connection and try again.",
   "IDENTITY_UNAVAILABLE": "The authentication service is unavailable. Please try again shortly.",
-  "IDENTITY_FLOW_INVALID": "The sign-in flow expired or could not be verified. Start a new sign-in."
+  "IDENTITY_FLOW_INVALID": "The sign-in flow expired or could not be verified. Start a new sign-in.",
+  "METHOD_NOT_ALLOWED": "This operation is not allowed.",
+  "PAYLOAD_TOO_LARGE": "The submitted data exceeds the allowed size.",
+  "UNSUPPORTED_MEDIA_TYPE": "The submitted format is not supported.",
+  "SERVICE_UNAVAILABLE": "The service is temporarily unavailable. Try again shortly.",
+  "SYSTEM_ROLE_IMMUTABLE": "System roles cannot be changed or deleted.",
+  "LAST_OWNER_REQUIRED": "At least one owner must remain."
 }

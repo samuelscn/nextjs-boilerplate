@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Field, FieldError, FieldLabel, Form, Input } from "@ginga/ui";
 import { createExampleSchema, type ExampleResult, type ExampleValues } from "@/lib/validation/example";
-import { ApiError, apiErrorSchema, normalizeFrontendError } from "@/lib/http/api-error";
+import { ApiError, normalizeFrontendError, problemSchema } from "@/lib/http/api-error";
 import { applyFieldErrors } from "@/lib/validation/form-errors";
 import { ErrorState } from "../feedback";
 
@@ -25,7 +25,7 @@ export function ExampleForm({ submit }: { submit: (values: ExampleValues) => Pro
     setSaved(false); setFailure(undefined);
     try {
       const result = await submit(values);
-      if (!result.ok) throw new ApiError(apiErrorSchema.parse(result.error));
+      if (!result.ok) throw new ApiError(problemSchema.parse(result.error));
       setSaved(true);
     } catch (error) {
       if (error instanceof ApiError && error.code === "VALIDATION_ERROR") applyFieldErrors(error.details, ["label"], setError, t);

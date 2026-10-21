@@ -14,7 +14,7 @@ export function applyFieldErrors<T extends FieldValues>(
   for (const detail of details ?? []) {
     const field = fields.find(name => name === detail.field);
     if (!field || seen.has(field) || field.split(".").some(part => ["__proto__", "constructor", "prototype"].includes(part))) continue;
-    setError(field, { type: "server", message: localizedValidation(detail.code, t) }, { shouldFocus: mapped === 0 });
+    setError(field, { type: "server", message: localizedValidation(detail.code, t, detail.params) }, { shouldFocus: mapped === 0 });
     seen.add(field); mapped++;
   }
   return mapped;

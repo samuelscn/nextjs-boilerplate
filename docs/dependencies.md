@@ -23,6 +23,7 @@ Stable + supported + security patched + tested, não atualização automática p
 | Vitest / jsdom | 4.1.11 / 29.1.1 | Dev, testes unitários/integração/componentes |
 | Testing Library React / user-event / jest-dom | 16.3.3 / 14.6.7 / 7.0.1 | Dev, interação e assertions de componentes |
 | Playwright | 1.63.0 | Dev, E2E em builds de produção com Chromium |
+| openapi-typescript | 7.13.0 | Fora do lockfile (npx via scripts/api-sync.mjs): gera tipos do OpenAPI da Product API; peer TypeScript 5 não entra no projeto |
 | @playwright/mcp | 0.0.83 | Fora do lockfile (npx via .mcp.json), verificação visual por agentes em dev |
 | @types/node / react / react-dom | 24.13.4 / 19.3.0 / 19.3.0 | Dev, tipos do runtime adotado |
 

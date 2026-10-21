@@ -4,5 +4,6 @@
   "MIN_LENGTH": "The value is too short.",
   "MAX_LENGTH": "The value is too long.",
   "IS_UUID": "Enter a valid identifier.",
-  "INVALID_VALUE": "Review the value of this field."
+  "INVALID_VALUE": "Review the value of this field.",
+  "UNKNOWN_FIELD": "This field is not accepted."
 }

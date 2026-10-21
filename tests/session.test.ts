@@ -82,7 +82,7 @@ describe("server-side sessions and login handlers", () => {
   it("bounds session and login memory", () => {
     const store = new SessionStore(Date.now, 1);
     store.create(tokens(), 3600);
-    expect(() => store.create(tokens(), 3600)).toThrow(expect.objectContaining({ statusCode: 503, code: "INTERNAL_SERVER_ERROR" }));
+    expect(() => store.create(tokens(), 3600)).toThrow(expect.objectContaining({ statusCode: 503, code: "SERVICE_UNAVAILABLE" }));
   });
   it("requires same origin for logout and destroys local state even if Identity fails", async () => {
     const { auth, store, identity } = setup();

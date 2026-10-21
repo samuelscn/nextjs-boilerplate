@@ -32,10 +32,7 @@ export function createBffHandler<Input, Output>(options: {
           body = await readBodyJson(new Response(request.body, { headers: request.headers }), 16_384);
         } catch { throw new HttpError(400, "invalid_input"); }
         const parsed = options.input.safeParse(body);
-        if (!parsed.success) throw new ApiError({
-          statusCode: 400, code: "VALIDATION_ERROR", message: "VALIDATION_ERROR",
-          timestamp: new Date().toISOString(), details: validationDetails(parsed.error),
-        });
+        if (!parsed.success) throw new ApiError({ status: 400, code: "VALIDATION_ERROR", errors: validationDetails(parsed.error) });
         input = parsed.data;
       }
       const result = options.output.safeParse(await options.execute(input, id));

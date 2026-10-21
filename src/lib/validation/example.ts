@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { ApiErrorResponse } from "../http/api-error";
+import type { Problem } from "../http/api-error";
 
 // Codes, not translated phrases: a fresh schema is created for client locale.
 export function createExampleSchema(t: (key: string) => string) {
@@ -7,4 +7,4 @@ export function createExampleSchema(t: (key: string) => string) {
 }
 export const exampleSchema = createExampleSchema(code => code);
 export type ExampleValues = z.infer<typeof exampleSchema>;
-export type ExampleResult = { ok: true } | { ok: false; error: ApiErrorResponse };
+export type ExampleResult = { ok: true } | { ok: false; error: Problem };

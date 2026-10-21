@@ -4,7 +4,6 @@ import { ApiError, statusCode } from "./api-error";
 export class HttpError extends ApiError {
   constructor(status: number, code: string, requestId?: string) {
     const stableCode = /^[A-Z][A-Z0-9_]*$/u.test(code) ? code : statusCode(status);
-    super({ statusCode: status, code: stableCode, message: stableCode,
-      timestamp: new Date().toISOString(), ...(requestId ? { requestId } : {}) });
+    super({ status, code: stableCode, ...(requestId ? { traceId: requestId } : {}) });
   }
 }

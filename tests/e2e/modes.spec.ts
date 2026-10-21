@@ -130,7 +130,7 @@ test("locale URLs, preference cookie, metadata and localized errors", async ({ p
     await page.goto("/auth/error?reason=unavailable");
     await expect(page.getByRole("heading", { name: "Identity unavailable" })).toBeVisible();
     const response = await request.get("/api/session", { headers: { "x-correlation-id": "req_E2E" } });
-    expect(await response.json()).toMatchObject({ statusCode: 401, code: "AUTHENTICATION_REQUIRED", requestId: "req_E2E" });
+    expect(await response.json()).toMatchObject({ status: 401, code: "AUTHENTICATION_REQUIRED", traceId: "req_E2E" });
     expect(response.headers()["x-correlation-id"]).toBe("req_E2E");
     await page.goto("/missing");
   }

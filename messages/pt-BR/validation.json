@@ -4,5 +4,6 @@
   "MIN_LENGTH": "O valor informado é muito curto.",
   "MAX_LENGTH": "O valor informado é muito longo.",
   "IS_UUID": "Informe um identificador válido.",
-  "INVALID_VALUE": "Revise o valor deste campo."
+  "INVALID_VALUE": "Revise o valor deste campo.",
+  "UNKNOWN_FIELD": "Este campo não é aceito."
 }

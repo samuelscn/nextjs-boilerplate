@@ -1,4 +1,4 @@
-import { ApiError, apiErrorSchema, statusCode, statusCodes } from "./api-error";
+import { ApiError, problemSchema, statusCode, statusCodes } from "./api-error";
 import { correlationId, retryAfterMilliseconds, validCorrelationId } from "./correlation";
 import { readBodyJson } from "./body";
 
@@ -8,13 +8,11 @@ export async function normalizeApiError(response: Response, fallbackId?: string)
   const retryAfter = retryAfterMilliseconds(response.headers.get("retry-after"));
   let input: unknown;
   try { input = await readBodyJson(response, 65_536); } catch { /* Fail closed for malformed/oversized payloads. */ }
-  const parsed = apiErrorSchema.safeParse(input);
-  if (parsed.success && parsed.data.statusCode === status &&
+  const parsed = problemSchema.safeParse(input);
+  // A generic code must agree with the HTTP status; specific domain codes are free.
+  if (parsed.success && parsed.data.status === status &&
       !Object.entries(statusCodes).some(([expected, code]) => code === parsed.data.code && Number(expected) !== status)) {
-    return new ApiError({ ...parsed.data, ...(headerId ? { requestId: headerId } : {}) }, retryAfter);
+    return new ApiError({ ...parsed.data, ...(headerId ? { traceId: headerId } : {}) }, retryAfter);
   }
-  return new ApiError({
-    statusCode: status, code: statusCode(status), message: statusCode(status),
-    timestamp: new Date().toISOString(), ...(headerId ? { requestId: headerId } : {}),
-  }, retryAfter);
+  return new ApiError({ status, code: statusCode(status), ...(headerId ? { traceId: headerId } : {}) }, retryAfter);
 }

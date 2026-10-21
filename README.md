@@ -66,6 +66,8 @@ RHF + Zod + fields do Ginga UI; exemplo neutro completo/testado em src/component
 | npm run test:modes | Build separado dos três perfis + secret canary check |
 | npm run check | Lint, tipos, testes e build |
 | npm run security:check | Invariantes, bundle leak check e audit runtime |
+| npm run api:sync | Copia o contrato da Product API (OpenAPI + fixtures de erro) e regenera os tipos |
+| npm run api:check | Falha se os tipos gerados estiverem defasados em relação a contracts/ |
 
 Antes de E2E: `npx playwright install --with-deps chromium` e `APP_URL=https://localhost npm run build`. Os testes usam OpenSSL para certificados locais temporários; não desativam validação TLS do app.
 

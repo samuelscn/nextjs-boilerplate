@@ -9,5 +9,11 @@
   "INTERNAL_SERVER_ERROR": "Algo deu errado. Tente novamente.",
   "NETWORK_ERROR": "Não foi possível conectar. Verifique sua conexão e tente novamente.",
   "IDENTITY_UNAVAILABLE": "O serviço de autenticação está indisponível. Tente novamente em instantes.",
-  "IDENTITY_FLOW_INVALID": "O fluxo expirou ou não pôde ser validado. Inicie um novo acesso."
+  "IDENTITY_FLOW_INVALID": "O fluxo expirou ou não pôde ser validado. Inicie um novo acesso.",
+  "METHOD_NOT_ALLOWED": "Esta operação não é permitida.",
+  "PAYLOAD_TOO_LARGE": "Os dados enviados excedem o tamanho permitido.",
+  "UNSUPPORTED_MEDIA_TYPE": "O formato enviado não é suportado.",
+  "SERVICE_UNAVAILABLE": "O serviço está temporariamente indisponível. Tente novamente em instantes.",
+  "SYSTEM_ROLE_IMMUTABLE": "Roles do sistema não podem ser alteradas nem excluídas.",
+  "LAST_OWNER_REQUIRED": "É necessário manter ao menos um proprietário."
 }

@@ -1,6 +1,6 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { ApiError, errorDto } from "@/lib/http/api-error";
+import { ApiError, errorDto, PROBLEM_CONTENT_TYPE } from "@/lib/http/api-error";
 import { correlationId, validCorrelationId } from "@/lib/http/correlation";
 
 export function requestId(request: Request): string {
@@ -12,7 +12,8 @@ export function privateJson(data: unknown, status = 200, id: string = randomUUID
 }
 export function errorResponse(error: unknown, id: string) {
   const dto = errorDto(error, id);
-  const response = privateJson(dto, dto.statusCode, dto.requestId ?? id);
+  const response = privateJson(dto, dto.status, dto.traceId ?? id);
+  response.headers.set("Content-Type", PROBLEM_CONTENT_TYPE);
   if (error instanceof ApiError && error.retryAfterMs !== undefined) response.headers.set("Retry-After", String(Math.ceil(error.retryAfterMs / 1000)));
   return response;
 }

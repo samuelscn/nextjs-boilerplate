@@ -37,6 +37,7 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      - run: npm run api:check
       - run: npm test
       - run: npm run build
       - run: npm run security:check
