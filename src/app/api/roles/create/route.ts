@@ -7,7 +7,7 @@ import { roleInputSchema, roleSchema } from "@/lib/validation/users";
 // Creates a custom role. System roles are fixed.
 export const dynamic = "force-dynamic";
 export const POST = createBffHandler({
-  method: "POST", permission: "role:create", input: roleInputSchema, output: roleSchema,
+  method: "POST", flag: "rolesEditor", permission: "role:create", input: roleInputSchema, output: roleSchema,
   execute: async (input, requestId) => {
     if (getEnv().APP_KIND !== "backoffice") throw new HttpError(404, "RESOURCE_NOT_FOUND");
     if (!input) throw new HttpError(400, "VALIDATION_ERROR");

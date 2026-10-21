@@ -86,6 +86,15 @@ describe("HTTP and BFF security", () => {
     expect((await handler(req('{"label":"valid"}'))).status).toBe(401);
     expect(execute).toHaveBeenCalledOnce();
   });
+  it("answers 404 for operations behind a disabled flag, before any other check", async () => {
+    const execute = vi.fn(async () => ({ label: "ok" }));
+    const dependencies = { getEnv: () => authEnv(), getSession: vi.fn(async () => null), isEnabled: vi.fn(async () => false) };
+    const handler = createBffHandler({ method: "POST", flag: "rolesEditor", input: schema, output: schema, execute }, dependencies);
+    const response = await handler(new Request("https://app.test/api/example", { method: "POST", headers: { origin: "https://app.test", "Content-Type": "application/json" }, body: '{"label":"valid"}' }));
+    expect(response.status).toBe(404);
+    expect(dependencies.getSession).not.toHaveBeenCalled();
+    expect(execute).not.toHaveBeenCalled();
+  });
   it("re-checks the route permission before executing", async () => {
     const execute = vi.fn(async () => ({ label: "ok" }));
     const assertPermission = vi.fn(async () => { throw new HttpError(403, "AUTHORIZATION_FORBIDDEN"); });

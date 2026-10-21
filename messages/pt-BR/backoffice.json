@@ -121,5 +121,7 @@
       "read": "Ver itens de exemplo",
       "create": "Criar itens de exemplo"
     }
-  }
+  },
+  "mockData": "Dados simulados",
+  "mockDataHint": "API_MODE=mock: dados em memória, não vêm da Product API."
 }

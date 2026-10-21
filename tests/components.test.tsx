@@ -11,6 +11,8 @@ import { ExampleForm } from "@/components/forms/example-form";
 import { ErrorState, EmptyState, ForbiddenState, LoadingState } from "@/components/feedback";
 import { AccessProvider } from "@/providers/access-provider";
 import { Can } from "@/components/access/can";
+import { Flag } from "@/components/flags/flag";
+import { FlagsProvider } from "@/providers/flags-provider";
 import { BackofficeShell } from "@/components/backoffice/shell";
 import ErrorPage from "@/app/error";
 import { QueryProvider } from "@/providers/query-provider";
@@ -113,6 +115,19 @@ describe("own components and integration with Ginga UI", () => {
     expect(screen.queryByRole("button", { name: "Convidar" })).not.toBeInTheDocument();
     expect(screen.getByText("fallback")).toBeVisible();
     expect(screen.getByRole("button", { name: "Ver roles" })).toBeVisible();
+  });
+  it("renders flagged UI only while enabled; missing provider means disabled", () => {
+    const view = render(<FlagsProvider flags={{ rolesEditor: true }}><Flag name="rolesEditor"><p>editor</p></Flag></FlagsProvider>);
+    expect(screen.getByText("editor")).toBeVisible();
+    view.unmount();
+    render(<><FlagsProvider flags={{ rolesEditor: false }}><Flag name="rolesEditor" fallback={<p>off</p>}><p>editor</p></Flag></FlagsProvider><Flag name="rolesEditor"><p>orphan</p></Flag></>);
+    expect(screen.getByText("off")).toBeVisible();
+    expect(screen.queryByText("editor")).not.toBeInTheDocument();
+    expect(screen.queryByText("orphan")).not.toBeInTheDocument();
+  });
+  it("marks simulated data in the shell", () => {
+    render(<AccessProvider permissions={[]}><BackofficeShell mockData><h1>x</h1></BackofficeShell></AccessProvider>);
+    expect(screen.getByText("Dados simulados")).toBeVisible();
   });
   it.each(["pt-BR", "en"] as const)("explains 403 without offering login (%s)", locale => {
     render(<ForbiddenState backHref="/backoffice" />, locale);

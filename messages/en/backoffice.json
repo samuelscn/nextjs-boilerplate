@@ -121,5 +121,7 @@
       "read": "View example items",
       "create": "Create example items"
     }
-  }
+  },
+  "mockData": "Simulated data",
+  "mockDataHint": "API_MODE=mock: in-memory data, not from the Product API."
 }

@@ -7,7 +7,7 @@ import { roleSchema, roleUpdateSchema } from "@/lib/validation/users";
 // Replaces a custom role's data and permission set.
 export const dynamic = "force-dynamic";
 export const POST = createBffHandler({
-  method: "POST", permission: "role:update", input: roleUpdateSchema, output: roleSchema,
+  method: "POST", flag: "rolesEditor", permission: "role:update", input: roleUpdateSchema, output: roleSchema,
   execute: async (input, requestId) => {
     if (getEnv().APP_KIND !== "backoffice") throw new HttpError(404, "RESOURCE_NOT_FOUND");
     if (!input) throw new HttpError(400, "VALIDATION_ERROR");

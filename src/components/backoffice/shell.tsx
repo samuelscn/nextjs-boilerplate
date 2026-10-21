@@ -1,13 +1,14 @@
 import { useTranslations } from "next-intl";
-import { ShieldCheckIcon } from "lucide-react";
+import { FlaskConicalIcon, ShieldCheckIcon } from "lucide-react";
 import {
-  Separator, Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
+  Badge, Separator, Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
   SidebarProvider, SidebarRail, SidebarTrigger, TooltipProvider,
 } from "@ginga/ui";
 import { Navigation } from "./navigation";
 import { UserMenu } from "./user-menu";
 
-export function BackofficeShell({ children }: { children: React.ReactNode }) {
+// `mockData` marks API_MODE=mock so nobody mistakes simulated data for the real API.
+export function BackofficeShell({ children, mockData = false }: { children: React.ReactNode; mockData?: boolean }) {
   const t = useTranslations("backoffice");
   return <TooltipProvider><SidebarProvider>
     <Sidebar collapsible="icon" mobileTitle={t("title")} mobileDescription={t("mobileDescription")}>
@@ -22,7 +23,8 @@ export function BackofficeShell({ children }: { children: React.ReactNode }) {
       <SidebarRail label={t("openMenu")} />
     </Sidebar>
     <SidebarInset id="main-content" tabIndex={-1}>
-      <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4"><SidebarTrigger label={t("openMenu")} /><Separator orientation="vertical" className="h-4" /></header>
+      <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4"><SidebarTrigger label={t("openMenu")} /><Separator orientation="vertical" className="h-4" />
+        {mockData && <Badge variant="outline" className="ml-auto" title={t("mockDataHint")}><FlaskConicalIcon aria-hidden />{t("mockData")}</Badge>}</header>
       <div className="mx-auto w-full max-w-6xl flex-1 p-4 md:p-8">{children}</div>
     </SidebarInset>
   </SidebarProvider></TooltipProvider>;

@@ -12,6 +12,7 @@ import {
 import { bffRequest } from "@/lib/http/browser";
 import { okSchema, type PermissionCatalog, type Role } from "@/lib/validation/users";
 import { useCan } from "@/providers/access-provider";
+import { useFlag } from "@/providers/flags-provider";
 import { ErrorState } from "../feedback";
 import { RoleFormDialog } from "./role-form-dialog";
 import { roleDescription, roleLabel } from "./labels";
@@ -21,9 +22,11 @@ export function RolesPanel({ roles, catalog }: { roles: Role[]; catalog: Permiss
   const tRoles = useTranslations("backoffice.users.roles");
   const tCommon = useTranslations("common.actions");
   const router = useRouter();
-  const canCreate = useCan("role:create");
-  const canUpdate = useCan("role:update");
-  const canDelete = useCan("role:delete");
+  // rolesEditor flag turns the editor off without touching permissions; the BFF answers 404 too.
+  const editor = useFlag("rolesEditor");
+  const canCreate = useCan("role:create") && editor;
+  const canUpdate = useCan("role:update") && editor;
+  const canDelete = useCan("role:delete") && editor;
   const [editing, setEditing] = useState<Role | "new">();
   const [deleting, setDeleting] = useState<Role>();
   const [failure, setFailure] = useState<unknown>();

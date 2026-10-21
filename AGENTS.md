@@ -25,6 +25,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Sessão memory só suporta um processo; não prometer serverless/réplicas sem trocar store e refresh lock.
 - I18n é Core obrigatório: todo texto/aria-label de UI deve ser traduzível, via namespaces em messages e next-intl. DS recebe labels/children, nunca depende de next-intl.
 - Product API errors seguem RFC 9457 (Problem Details, docs/error-handling.md). Normalize uma vez; decisões por code/status, nunca por title/detail. Código novo da API exige `npm run api:sync` e tradução em errors.json (pt-BR e en).
+- Funcionalidade nova ou arriscada nasce atrás de feature flag registrada em src/config/flags.ts (docs/feature-flags.md). Flag decide se existe; permissão decide quem pode.
+- Dados de produto passam por um gateway mock/live em src/server/<domínio> (modelo: src/server/members); o mock reproduz contrato e códigos de erro da API.
 - Tipos da Product API vêm de src/lib/api/schema.d.ts (gerado do OpenAPI); não escreva DTOs da API à mão nem edite o arquivo gerado.
 - Preserve requestId/x-correlation-id validado; nunca mostre mensagens técnicas de 500 ou registre bodies/secrets.
 - Mapear details somente para campos conhecidos. Zod no browser é UX; server validation permanece autoridade.

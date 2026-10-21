@@ -2,6 +2,7 @@ import { z } from "zod";
 import template from "../../template.config.json";
 import { safeServiceUrl } from "../lib/validation/urls";
 import { supportedLocales, defaultLocale } from "../i18n/config";
+import { parseFlags } from "./flags";
 
 const flag = z.enum(["true", "false"]).transform(value => value === "true");
 const core = z.object({
@@ -11,6 +12,7 @@ const core = z.object({
   APP_NAME: z.string().trim().min(1).max(80).default("Ginga Application"),
   I18N_DEFAULT_LOCALE: z.enum(supportedLocales).default(defaultLocale),
   I18N_URL_STRATEGY: z.enum(["public-prefix", "cookie"]).default(template.i18n.urlStrategy.public as "public-prefix" | "cookie"),
+  FEATURE_FLAGS: z.string().max(4096).optional(),
 });
 const auth = z.object({
   OIDC_ISSUER: z.string().min(1),
@@ -35,12 +37,15 @@ const schema = core.superRefine((value, ctx) => {
       new URL(value.APP_URL).origin !== value.APP_URL) {
     ctx.addIssue({ code: "custom", path: ["APP_URL"], message: "Expected canonical origin; HTTPS in production" });
   }
+  try { parseFlags(value.FEATURE_FLAGS); } catch { ctx.addIssue({ code: "custom", path: ["FEATURE_FLAGS"], message: "Invalid configuration" }); }
 });
+// Feature flags resolved once from FEATURE_FLAGS; the raw string never leaves config.
+const withFlags = <T extends { FEATURE_FLAGS?: string | undefined }>({ FEATURE_FLAGS, ...value }: T) => ({ ...value, flags: parseFlags(FEATURE_FLAGS) });
 export function parseEnv(input: Record<string, string | undefined>) {
   const normalized = Object.fromEntries(Object.entries(input).map(([key, value]) => [key, value === "" ? undefined : value]));
   const base = schema.safeParse(normalized);
   if (!base.success) throw configError(base.error);
-  if (base.data.APP_KIND === "public") return { ...base.data, APP_KIND: "public" as const };
+  if (base.data.APP_KIND === "public") return { ...withFlags(base.data), APP_KIND: "public" as const };
   const result = auth.superRefine((value, ctx) => {
     const issue = (key: string) => ctx.addIssue({ code: "custom", path: [key], message: "Invalid configuration" });
     const production = base.data.NODE_ENV === "production";
@@ -55,7 +60,7 @@ export function parseEnv(input: Record<string, string | undefined>) {
   }).safeParse(normalized);
   if (!result.success) throw configError(result.error);
   const API_MODE = result.data.API_MODE ?? (base.data.NODE_ENV === "production" ? "live" : "mock");
-  return { ...base.data, ...result.data, API_MODE, APP_KIND: base.data.APP_KIND };
+  return { ...withFlags(base.data), ...result.data, API_MODE, APP_KIND: base.data.APP_KIND };
 }
 function configError(error: z.ZodError) {
   // Never include rejected input, Zod messages or secrets in logs.

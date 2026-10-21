@@ -7,7 +7,7 @@ import { okSchema, roleIdSchema } from "@/lib/validation/users";
 // Deletes a custom role and its assignments.
 export const dynamic = "force-dynamic";
 export const POST = createBffHandler({
-  method: "POST", permission: "role:delete", input: roleIdSchema, output: okSchema,
+  method: "POST", flag: "rolesEditor", permission: "role:delete", input: roleIdSchema, output: okSchema,
   execute: async (input, requestId) => {
     if (getEnv().APP_KIND !== "backoffice") throw new HttpError(404, "RESOURCE_NOT_FOUND");
     if (!input) throw new HttpError(400, "VALIDATION_ERROR");
