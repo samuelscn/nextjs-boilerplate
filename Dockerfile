@@ -1,4 +1,4 @@
-FROM node:24.21.0-alpine AS base
+FROM node:26.12.1-alpine AS base
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
@@ -14,7 +14,7 @@ COPY . .
 ENV APP_KIND=public APP_URL=https://localhost
 RUN npm run build
 
-FROM node:24.21.0-alpine AS runner
+FROM node:26.12.1-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
 COPY --from=builder --chown=node:node /app/.next/standalone ./
